@@ -5,8 +5,8 @@
 
 /* --- DATA_START --- */
 const INITIAL_DATA = {
-    "version": "1.4",
-    "projects": [
+    version: '1.5',
+    projects: [
         {
             "id": "p1",
             "title": "MealFlow",
@@ -160,19 +160,15 @@ const INITIAL_DATA = {
             "academicYear": "AY 2024-25"
         },
         {
-            "id": "p11",
-            "title": "Maze Simulation",
-            "status": "Complete",
-            "shortDesc": "Pygame-based maze generation/solving.",
-            "fullDesc": "A simulation exploring maze generation and solving algorithms in Python.",
-            "tech": [
-                "Python",
-                "Pygame",
-                "Algorithms"
-            ],
-            "link": "https://github.com/RishitChoudhary/simulations",
-            "academicYear": "AY 2023-24"
-        }
+            id: 'p11',
+            title: 'Maze Simulation',
+            status: 'Complete',
+            shortDesc: 'Pygame-based maze generation/solving.',
+            fullDesc: 'A simulation exploring maze generation and solving algorithms in Python.',
+            tech: ['Python', 'Pygame', 'Algorithms'],
+            link: 'https://github.com/Creator2149/Maze',
+            academicYear: 'AY 2023-24',
+        },
     ],
     "credentials": [
         {
@@ -335,8 +331,8 @@ const INITIAL_DATA = {
 
 // --- CORE APP STATE ---
 function loadData() {
-    // Return INITIAL_DATA directly to ignore any old localStorage and ensure fresh code is used.
-    // Changes made in the Admin panel will live in memory for the current session only.
+    // FORCE CLEAR LOCALSTORAGE TO PREVENT GHOST DATA
+    localStorage.removeItem('rishitPortfolioData');
     return INITIAL_DATA;
 }
 
@@ -381,8 +377,7 @@ async function hashPassphrase(str) {
 }
 
 function saveData() {
-    // No-op: LocalStorage persistence removed to prevent data conflicts.
-    // Changes are held in the 'portfolioData' variable for the current session.
+    // LocalStorage completely disabled to ensure only GitHub pushes are final.
 }
 
 // --- RENDERING ENGINES ---
@@ -636,7 +631,6 @@ const admin = {
                 portfolioData.projects.push(updated);
             }
 
-            saveData();
             renderProjects();
             this.renderDashboard();
             document.getElementById('form-modal').style.display = 'none';
@@ -650,7 +644,6 @@ const admin = {
     deleteProject(id) {
         if (confirm('Are you sure you want to delete this project?')) {
             portfolioData.projects = portfolioData.projects.filter((p) => p.id !== id);
-            saveData();
             renderProjects();
             this.renderDashboard();
         }
@@ -688,7 +681,6 @@ const admin = {
                 portfolioData.credentials.push(updated);
             }
 
-            saveData();
             renderCredentials();
             this.renderDashboard();
             document.getElementById('form-modal').style.display = 'none';
@@ -702,7 +694,6 @@ const admin = {
     deleteCert(id) {
         if (confirm('Are you sure you want to delete this entry?')) {
             portfolioData.credentials = portfolioData.credentials.filter((c) => c.id !== id);
-            saveData();
             renderCredentials();
             this.renderDashboard();
         }
@@ -712,7 +703,6 @@ const admin = {
         const token = document.getElementById('github-token').value.trim();
         const repo = 'Creator2149/Portfolio';
         const path = 'script.js';
-        const message = 'Admin: Portfolio Data Update';
         const btn = document.getElementById('push-to-github');
         const status = document.getElementById('sync-status');
 
@@ -730,7 +720,6 @@ const admin = {
             const parts = portfolioData.version.split('.');
             parts[parts.length - 1] = parseInt(parts[parts.length - 1]) + 1;
             portfolioData.version = parts.join('.');
-            saveData(); // Save new version to local storage too
 
             // 2. Fetch current file to get SHA
             const getUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
@@ -758,7 +747,7 @@ const admin = {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    message: message + ' (v' + portfolioData.version + ')',
+                    message: `Admin: Data update to v${portfolioData.version}`,
                     content: btoa(unescape(encodeURIComponent(newContent))),
                     sha: currentSha,
                 }),

@@ -5,7 +5,7 @@
 
 /* --- DATA_START --- */
 const INITIAL_DATA = {
-    "version": "1.7",
+    "version": "1.8",
     "projects": [
         {
             "id": "p1",
@@ -119,18 +119,6 @@ const INITIAL_DATA = {
             ],
             "link": "#",
             "academicYear": "AY 2025-26"
-        },
-        {
-            "id": "p1772533556470",
-            "title": "Teni",
-            "shortDesc": "AI bot",
-            "status": "Planned",
-            "fullDesc": "an AI bot that simulates brain on computer",
-            "academicYear": "AY 2025-26",
-            "tech": [
-                "Python"
-            ],
-            "link": "https://www.google.com"
         },
         {
             "id": "p9",

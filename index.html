@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Rishit Choudhary | Portfolio</title>
+        <link rel="stylesheet" href="styles.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syncopate:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <div id="cursor-glow"></div>
+        <canvas id="particles-canvas"></canvas>
+
+        <nav id="navbar">
+            <div class="nav-container">
+                <a href="#hero" class="logo">RC<span>.</span></a>
+                <div class="nav-links">
+                    <a href="#about">About</a>
+                    <a href="#projects">Projects</a>
+                    <a href="#credentials">Certificates & Participations</a>
+                    <a href="#contact">Contact</a>
+                </div>
+                <div class="mobile-menu-btn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+
+        <main>
+            <section id="hero">
+                <div class="hero-content">
+                    <h2 class="reveal-text">AY 2025-26</h2>
+                    <h1 class="glitch" data-text="RISHIT CHOUDHARY">RISHIT CHOUDHARY</h1>
+                    <p class="subtitle">9th Grade Student | Aspiring Tech Innovator | Researcher</p>
+                    <div class="hero-cta">
+                        <a href="#projects" class="btn primary">View Projects</a>
+                        <a href="#credentials" class="btn secondary">Certificates & Participations</a>
+                    </div>
+                </div>
+                <div class="scroll-indicator">
+                    <div class="mouse"></div>
+                </div>
+            </section>
+
+            <section id="about" class="section-padding">
+                <div class="container">
+                    <h2 class="section-title">About Me</h2>
+                    <div class="glass-card about-card">
+                        <p>
+                            I am a 9th-grade student currently in the Academic Year 2025-26. My passion lies at the
+                            intersection of Computer Science, Mathematics, and Physics. I am constantly exploring new
+                            technologies and building projects that solve real-world problems. From developing AI
+                            frameworks to writing research papers, I strive to push the boundaries of my knowledge and
+                            contribute to the STEM community.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="projects" class="section-padding">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 class="section-title">Projects</h2>
+                        <div class="filters">
+                            <button class="filter-btn active" data-filter="all">All</button>
+                            <button class="filter-btn" data-filter="Complete">Complete</button>
+                            <button class="filter-btn" data-filter="In Progress">In Progress</button>
+                            <button class="filter-btn" data-filter="Planned">Planned</button>
+                        </div>
+                    </div>
+                    <div id="projects-grid" class="grid-container">
+                        <!-- Projects injected via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="credentials" class="section-padding">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 class="section-title">Certificates & Participations</h2>
+                        <div class="sort-controls">
+                            <span>Sort by Year:</span>
+                            <select id="sort-year">
+                                <option value="desc">Latest First</option>
+                                <option value="asc">Oldest First</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="credentials-grid" class="grid-container">
+                        <!-- Certificates injected via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="contact" class="section-padding">
+                <div class="container">
+                    <h2 class="section-title">Connect</h2>
+                    <div class="glass-card contact-grid">
+                        <div class="contact-info">
+                            <h3>Let's build something together</h3>
+                            <p>Feel free to reach out for collaborations or just a friendly chat about tech.</p>
+                            <div class="social-links">
+                                <a href="#" class="social-link">GitHub</a>
+                                <a href="#" class="social-link">LinkedIn</a>
+                                <a href="#" class="social-link">Email</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2026 Rishit Choudhary. Built with Neo-Futurism.</p>
+        </footer>
+
+        <!-- Modals -->
+        <div id="project-modal" class="modal">
+            <div class="modal-content glass-card">
+                <span class="close-modal">&times;</span>
+                <div id="modal-body"></div>
+            </div>
+        </div>
+
+        <!-- Admin Backdoor Interface (Hidden) -->
+        <div id="admin-gate" class="modal">
+            <div class="modal-content glass-card admin-prompt">
+                <h3>Authorization Required</h3>
+                <input type="password" id="admin-passphrase" placeholder="Enter Secret Passphrase" />
+                <button id="admin-login-btn" class="btn primary">Unlock</button>
+                <p id="admin-error" class="error-msg"></p>
+            </div>
+        </div>
+
+        <div id="admin-dashboard" class="modal">
+            <div class="modal-content glass-card admin-panel">
+                <div class="admin-header">
+                    <h2>Admin Dashboard</h2>
+                    <button class="close-admin btn secondary">Exit</button>
+                </div>
+                <div class="admin-tabs">
+                    <button class="tab-btn active" data-tab="manage-projects">Projects</button>
+                    <button class="tab-btn" data-tab="manage-certs">Certificates & Participations</button>
+                    <button class="tab-btn" data-tab="github-sync">Production Sync</button>
+                </div>
+                <div class="tab-content" id="manage-projects">
+                    <button class="btn primary admin-add-btn" onclick="admin.openProjectForm()">+ Add Project</button>
+                    <div id="admin-projects-list"></div>
+                </div>
+                <div class="tab-content hidden" id="manage-certs">
+                    <button class="btn primary admin-add-btn" onclick="admin.openCertForm()">+ Add Entry</button>
+                    <div id="admin-certs-list"></div>
+                </div>
+                <div class="tab-content hidden" id="github-sync">
+                    <div class="github-sync-panel">
+                        <h3>Publish to GitHub Pages</h3>
+                        <p>Updating here will overwrite the code in your repository and make the changes permanent for everyone.</p>
+                        <input type="password" id="github-token" placeholder="GitHub Personal Access Token" />
+                        <button id="push-to-github" class="btn primary">Push to Production</button>
+                        <p id="sync-status" class="sync-status-msg"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="form-modal" class="modal">
+            <div class="modal-content glass-card">
+                <h3 id="form-title">Edit Entry</h3>
+                <form id="dynamic-form"></form>
+                <div class="form-actions">
+                    <button type="button" class="btn primary" id="save-btn">Save Changes</button>
+                    <button
+                        type="button"
+                        class="btn secondary"
+                        onclick="document.getElementById('form-modal').style.display = 'none'"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script src="script.js"></script>
+    </body>
+</html>

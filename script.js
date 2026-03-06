@@ -31,7 +31,7 @@ const INITIAL_DATA = {
             fullDesc:
                 "MealFlow is a website designed for Indian households where homemakers struggle to decide meal plans that suit every member's needs, preferences, and health goals. The platform takes in family member details and available ingredients to create a meal plan via AI. Developed using HTML, Tailwind CSS, JS, FastAPI, Appwrite, and Groq AI.",
             tech: ['FastAPI', 'Appwrite', 'Tailwind', 'Groq AI'],
-            link: 'https://github.com/Creator2149/MealFlow',
+            link: 'https://github.com/rishitc17/MealFlow',
             academicYear: 'AY 2025-26',
         },
         {
@@ -130,7 +130,7 @@ const INITIAL_DATA = {
             fullDesc:
                 'A mathematical model of disease transmission visualized through a Pygame simulation. Available on GitHub.',
             tech: ['Python', 'Pygame', 'Simulation'],
-            link: 'https://github.com/Creator2149/DiseaseSpreadSimulation',
+            link: 'https://github.com/rishitc17/DiseaseSpreadSimulation',
             academicYear: 'AY 2024-25',
         },
         {
@@ -140,7 +140,7 @@ const INITIAL_DATA = {
             shortDesc: 'Pygame-based maze generation/solving.',
             fullDesc: 'A simulation exploring maze generation and solving algorithms in Python.',
             tech: ['Python', 'Pygame', 'Algorithms'],
-            link: 'https://github.com/Creator2149/Maze',
+            link: 'https://github.com/rishitc17/Maze',
             academicYear: 'AY 2023-24',
         },
     ],
@@ -708,7 +708,7 @@ const admin = {
 
     async pushToGitHub() {
         const token = document.getElementById('github-token').value.trim();
-        const repo = 'Creator2149/Portfolio';
+        const repo = 'rishitc17/rishitc17.github.io';
         const path = 'script.js';
         const btn = document.getElementById('push-to-github');
         const status = document.getElementById('sync-status');

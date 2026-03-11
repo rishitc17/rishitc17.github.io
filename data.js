@@ -1,5 +1,5 @@
 const portfolioData = {
-    "version": "1.11",
+    "version": "1.12",
     "projects": [
         {
             "id": "p1",
@@ -19,16 +19,16 @@ const portfolioData = {
         {
             "id": "p2",
             "title": "Nullary",
-            "status": "In Progress",
-            "shortDesc": "Axiomatic framework for division by zero.",
-            "fullDesc": "An axiomatic framework developed to simplify working with expressions involving division by 0. Currently seeking expert feedback on the paper. Developed in AY 2025-26 and still under active research.",
             "tech": [
                 "Mathematics",
                 "Research",
                 "LaTeX"
             ],
+            "academicYear": "AY 2025-26",
+            "shortDesc": "An axiomatic framework for division by zero.",
+            "fullDesc": "An axiomatic framework developed to simplify working with expressions involving division by 0. Currently seeking expert feedback on the paper. Developed in AY 2025-26 and still under active research.",
             "link": "#",
-            "academicYear": "AY 2025-26"
+            "status": "In Progress"
         },
         {
             "id": "p3",

@@ -123,7 +123,7 @@
         </main>
 
         <footer class="footer">
-            <p>&copy; 2026 Rishit Choudhary.</p>
+            <p><span id="admin-trigger">&copy;</span> 2026 Rishit Choudhary.</p>
         </footer>
 
         <!-- Modals -->
@@ -143,67 +143,7 @@
             </div>
         </div>
 
-        <!-- Admin Backdoor Interface (Hidden) -->
-        <div id="admin-gate" class="modal">
-            <div class="modal-content glass-card admin-prompt">
-                <h3>Authorization Required</h3>
-                <input type="password" id="admin-passphrase" placeholder="Enter Secret Passphrase" />
-                <button id="admin-login-btn" class="btn primary">Unlock</button>
-                <p id="admin-error" class="error-msg"></p>
-            </div>
-        </div>
-
-        <div id="admin-dashboard" class="modal">
-            <div class="modal-content glass-card admin-panel">
-                <div class="admin-header">
-                    <h2>Admin Dashboard</h2>
-                    <button class="close-admin btn secondary">Exit</button>
-                </div>
-                <div class="admin-tabs">
-                    <button class="tab-btn active" data-tab="manage-projects">Projects</button>
-                    <button class="tab-btn" data-tab="manage-certs">Certificates & Participations</button>
-                    <button class="tab-btn" data-tab="github-sync">Production Sync</button>
-                </div>
-                <div class="tab-content" id="manage-projects">
-                    <button class="btn primary admin-add-btn" onclick="admin.openProjectForm()">+ Add Project</button>
-                    <div id="admin-projects-list"></div>
-                </div>
-                <div class="tab-content hidden" id="manage-certs">
-                    <button class="btn primary admin-add-btn" onclick="admin.openCertForm()">+ Add Entry</button>
-                    <div id="admin-certs-list"></div>
-                </div>
-                <div class="tab-content hidden" id="github-sync">
-                    <div class="github-sync-panel">
-                        <h3>Publish to GitHub Pages</h3>
-                        <p>
-                            Updating here will overwrite the code in your repository and make the changes permanent for
-                            everyone.
-                        </p>
-                        <input type="password" id="github-token" placeholder="GitHub Personal Access Token" />
-                        <button id="push-to-github" class="btn primary">Push to Production</button>
-                        <p id="sync-status" class="sync-status-msg"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="form-modal" class="modal">
-            <div class="modal-content glass-card">
-                <h3 id="form-title">Edit Entry</h3>
-                <form id="dynamic-form"></form>
-                <div class="form-actions">
-                    <button type="button" class="btn primary" id="save-btn">Save Changes</button>
-                    <button
-                        type="button"
-                        class="btn secondary"
-                        onclick="document.getElementById('form-modal').style.display = 'none'"
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-
+        <script src="data.js"></script>
         <script src="script.js"></script>
     </body>
 </html>

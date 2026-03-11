@@ -125,25 +125,36 @@ window.openCertModal = (certId) => {
     const body = document.getElementById('cert-modal-body');
     if (!c) return;
 
-    let imgHtml = "";
-    if (c.img && c.img !== 'placeholder.png') {
-        imgHtml = `
-            <img src="${c.img}" alt="${c.title}" 
-                 style="width: 100%; height: auto; max-width: 100%; border-radius: 10px; box-shadow: 0 0 20px #00fff7a0; object-fit: contain; background: #222; display: block;" 
-                 onerror="this.style.display='none';this.parentNode.innerHTML='<span style=\'color: var(--accent-color);font-size:2rem\'>[No Certificate]</span>';" />
-        `;
-    } else {
-        imgHtml = `<span style="color: var(--accent-color); font-size: 2rem;">[No Certificate]</span>`;
-    }
-
     body.innerHTML = `
         <h2 style="color: var(--accent-color); margin-bottom: 10px;">${c.title}</h2>
         <span class="tech-tag">${c.discipline}</span>
         <p style="margin: 10px 0 5px 0;"><strong>Year:</strong> ${c.year}</p>
-        <div style="display: flex; justify-content: center; align-items: center; margin: 20px 0; min-height: 200px; background: rgba(0,0,0,0.2); border-radius: 10px;">
-            ${imgHtml}
+        <div id="modal-img-container" style="display: flex; justify-content: center; align-items: center; margin: 20px 0; min-height: 200px; background: rgba(0,0,0,0.2); border-radius: 10px; overflow: hidden;">
         </div>
     `;
+
+    const container = document.getElementById('modal-img-container');
+    if (c.img && c.img !== 'placeholder.png') {
+        const img = document.createElement('img');
+        img.src = c.img;
+        img.alt = c.title;
+        img.style.width = '100%';
+        img.style.height = 'auto';
+        img.style.maxWidth = '100%';
+        img.style.borderRadius = '10px';
+        img.style.boxShadow = '0 0 20px #00fff7a0';
+        img.style.objectFit = 'contain';
+        img.style.background = '#222';
+        img.style.display = 'block';
+        img.onerror = function () {
+            this.style.display = 'none';
+            container.innerHTML = `<span style="color: var(--accent-color); font-size: 2rem;">[No Certificate]</span>`;
+        };
+        container.appendChild(img);
+    } else {
+        container.innerHTML = `<span style="color: var(--accent-color); font-size: 2rem;">[No Certificate]</span>`;
+    }
+
     modal.style.display = 'block';
 };
 

@@ -124,12 +124,24 @@ window.openCertModal = (certId) => {
     const modal = document.getElementById('cert-modal');
     const body = document.getElementById('cert-modal-body');
     if (!c) return;
+
+    let imgHtml = "";
+    if (c.img && c.img !== 'placeholder.png') {
+        imgHtml = `
+            <img src="${c.img}" alt="${c.title}" 
+                 style="width: 100%; height: auto; max-width: 100%; border-radius: 10px; box-shadow: 0 0 20px #00fff7a0; object-fit: contain; background: #222; display: block;" 
+                 onerror="this.style.display='none';this.parentNode.innerHTML='<span style=\'color: var(--accent-color);font-size:2rem\'>[No Certificate]</span>';" />
+        `;
+    } else {
+        imgHtml = `<span style="color: var(--accent-color); font-size: 2rem;">[No Certificate]</span>`;
+    }
+
     body.innerHTML = `
         <h2 style="color: var(--accent-color); margin-bottom: 10px;">${c.title}</h2>
         <span class="tech-tag">${c.discipline}</span>
         <p style="margin: 10px 0 5px 0;"><strong>Year:</strong> ${c.year}</p>
-        <div style="display: flex; justify-content: center; align-items: center; margin: 20px 0;">
-            <img src="${c.img}" alt="${c.title}" style="width: 100%; height: auto; max-width: 100%; border-radius: 10px; box-shadow: 0 0 20px #00fff7a0; object-fit: contain; background: #222; display: block;" onerror="this.style.display='none';this.parentNode.innerHTML='<span style=\'color: var(--accent-color);font-size:2rem\'>[No Certificate]</span>';" />
+        <div style="display: flex; justify-content: center; align-items: center; margin: 20px 0; min-height: 200px; background: rgba(0,0,0,0.2); border-radius: 10px;">
+            ${imgHtml}
         </div>
     `;
     modal.style.display = 'block';

@@ -1,5 +1,5 @@
 const portfolioData = {
-    "version": "1.13",
+    "version": "1.15",
     "projects": [
         {
             "id": "p1",

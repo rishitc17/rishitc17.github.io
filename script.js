@@ -6,13 +6,32 @@
 // portfolioData is loaded from data.js
 
 // --- UTILITIES ---
-function getYearScore(yearStr) {
-    if (!yearStr) return 0;
-    const match = yearStr.match(/(\d{2})-(\d{2})/);
-    if (!match) return 0;
-    let score = parseInt(match[1]);
-    if (yearStr.includes('Summer')) score += 0.5;
-    return score;
+function getYearScore(dateStr) {
+    if (!dateStr) return 0;
+    
+    // Handle "1st March, 2026" or "3rd February, 2025"
+    const longDateMatch = dateStr.match(/(\d+)(?:st|nd|rd|th)?\s+([a-zA-Z]+),?\s+(\d{4})/);
+    if (longDateMatch) {
+        const day = parseInt(longDateMatch[1]);
+        const monthName = longDateMatch[2];
+        const year = parseInt(longDateMatch[3]);
+        const date = new Date(`${monthName} ${day}, ${year}`);
+        if (!isNaN(date.getTime())) {
+            return date.getTime() / 1000000; // Return timestamp-based score
+        }
+    }
+
+    // Handle "AY 2025-26" or "Summer AY 24-25"
+    const ayMatch = dateStr.match(/(\d{2,4})-(\d{2})/);
+    if (ayMatch) {
+        let year = parseInt(ayMatch[1]);
+        if (year < 100) year += 2000; // Convert 25 to 2025
+        let score = year;
+        if (dateStr.includes('Summer')) score += 0.5;
+        return score;
+    }
+    
+    return 0;
 }
 
 // --- RENDERING ENGINES ---
@@ -45,7 +64,7 @@ function renderProjects(filter = 'all') {
     });
 }
 
-function renderCredentials(sort = 'desc') {
+function renderCredentials() {
     const grid = document.getElementById('credentials-grid');
     if (!grid) return;
     grid.innerHTML = '';
@@ -53,7 +72,7 @@ function renderCredentials(sort = 'desc') {
     const sorted = [...portfolioData.credentials].sort((a, b) => {
         const scoreA = getYearScore(a.year);
         const scoreB = getYearScore(b.year);
-        return sort === 'desc' ? scoreB - scoreA : scoreA - scoreB;
+        return scoreB - scoreA; // Always Latest First
     });
 
     sorted.forEach((c) => {
@@ -317,12 +336,4 @@ document.addEventListener('DOMContentLoaded', () => {
             renderProjects(e.target.dataset.filter);
         });
     });
-
-    // Sorting
-    const sortYear = document.getElementById('sort-year');
-    if (sortYear) {
-        sortYear.addEventListener('change', (e) => {
-            renderCredentials(e.target.value);
-        });
-    }
 });

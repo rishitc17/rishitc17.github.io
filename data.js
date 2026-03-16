@@ -1,5 +1,5 @@
 const portfolioData = {
-    "version": "1.18",
+    "version": "1.19",
     "projects": [
         {
             "id": "p1",
@@ -324,9 +324,9 @@ const portfolioData = {
         {
             "id": "c1772614102624",
             "title": "Participation and Shortlisting for John Locke Essay Competition",
-            "year": "AY 2024-25",
             "discipline": "Literature",
-            "img": "placeholder.png"
+            "year": "AY 2024-25",
+            "img": "John Locke Essay 2025.png"
         }
     ],
     "blenderProjects": [

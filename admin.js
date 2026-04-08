@@ -2,7 +2,7 @@
  * Admin Logic for Portfolio
  */
 
-const ADMIN_HASH = 'cae0dd875c4b3d94bddc6f8cd3f772f705d800d1afb36ca7eeffd5031a57ad05'; // "rishit2026"
+const ADMIN_HASH = 'cae0dd875c4b3d94bddc6f8cd3f772f705d800d1afb36ca7eeffd5031a57ad05';
 
 async function hashPassphrase(str) {
     const encoder = new TextEncoder();

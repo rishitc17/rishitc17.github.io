@@ -1,5 +1,5 @@
 const portfolioData = {
-    "version": "1.20",
+    "version": "1.21",
     "projects": [
         {
             "id": "p1775733351004",
@@ -76,17 +76,17 @@ const portfolioData = {
         {
             "id": "p4",
             "title": "Raksha",
-            "status": "Complete",
-            "shortDesc": "AI-powered self-defense platform.",
-            "fullDesc": "Self-defense platform where people learn from home through webcam motion tracking and AI-powered feedback. Contributor role. Built with React and Python.",
             "tech": [
                 "React",
                 "Python",
                 "Supabase",
                 "AI"
             ],
-            "link": "#",
-            "academicYear": "AY 2025-26"
+            "academicYear": "AY 2025-26",
+            "shortDesc": "AI-powered self-defense platform.",
+            "fullDesc": "Self-defense platform where people learn from home through webcam motion tracking and AI-powered feedback. Contributor role. Built with React and Python.",
+            "link": "https://rakshaapp.github.io",
+            "status": "Complete"
         },
         {
             "id": "p5",
@@ -133,15 +133,15 @@ const portfolioData = {
         {
             "id": "p8",
             "title": "The Celestis Conclave",
-            "status": "In Progress",
-            "shortDesc": "Regional STEM club for students.",
-            "fullDesc": "Mathematics department head and core council member of a student-led regional STEM club dedicated to advanced learning.",
             "tech": [
                 "Leadership",
                 "STEM Education"
             ],
-            "link": "#",
-            "academicYear": "AY 2025-26"
+            "academicYear": "AY 2025-26",
+            "shortDesc": "Regional STEM club for students.",
+            "fullDesc": "Mathematics department head and core council member of a student-led regional STEM club dedicated to advanced learning.",
+            "link": "https://celestisconclave.github.io",
+            "status": "In Progress"
         },
         {
             "id": "p1772951995126",

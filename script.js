@@ -8,7 +8,7 @@
 // --- UTILITIES ---
 function getYearScore(dateStr) {
     if (!dateStr) return 0;
-    
+
     // Handle "1st March, 2026" or "3rd February, 2025"
     const longDateMatch = dateStr.match(/(\d+)(?:st|nd|rd|th)?\s+([a-zA-Z]+),?\s+(\d{4})/);
     if (longDateMatch) {
@@ -30,7 +30,7 @@ function getYearScore(dateStr) {
         if (dateStr.includes('Summer')) score += 0.5;
         return score;
     }
-    
+
     return 0;
 }
 
@@ -171,7 +171,7 @@ window.openProjectModal = (id) => {
         <div class="tech-stack" style="margin-bottom: 20px;">
             ${p.tech.map((t) => `<span class="tech-tag">${t}</span>`).join('')}
         </div>
-        ${p.link !== '#' ? `<a href="${p.link}" target="_blank" class="btn primary">View on GitHub</a>` : ''}
+        ${p.link !== '#' ? `<a href="${p.link}" target="_blank" class="btn primary">View Full Project</a>` : ''}
     `;
     modal.style.display = 'block';
 };
@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('cert-modal').style.display = 'none';
         };
     }
-    
+
     const closeModal = document.querySelector('.close-modal');
     if (closeModal) {
         closeModal.onclick = () => {

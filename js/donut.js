@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {donutPose,donutRotationOrder,createRenderLoop} from './donut-motion.js?v=4';
+import {donutPose,donutRotationOrder,createRenderLoop} from './donut-motion.js?v=6';
 
 export function donutMarkup({broken=false}={}){
   return `<figure class="donut-figure${broken?' donut-broken':''}"><div class="donut-stage" tabindex="0" role="img" aria-label="${broken?'A fractured interactive ASCII donut':'Rotating sprinkle donut. Keyboard focus holds the rotation.'}"><img class="donut-poster" src="/assets/images/donut-poster.png?v=3" alt="" width="960" height="800"><span class="donut-loading" role="status">Loading 3D model…</span></div></figure>`;

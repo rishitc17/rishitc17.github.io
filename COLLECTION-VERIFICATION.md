@@ -1,5 +1,7 @@
 # Collection and donut refinements
 
+Follow-up: the cursor now shares the canvas's unscaled layout-pixel coordinates, fixing the offset caused by capturing the hero's animated scale during resize. Rotation now includes a smooth turnover every 24 seconds so the base is briefly visible. Updated motion tests require the glaze to dominate, the underside to appear briefly, and all turnover/cycle boundaries to remain continuous. The original delivery record below describes the preceding always-glaze-facing motion.
+
 29 October 2026. This delivery follows the owner's final layout and interaction feedback and retains the accepted dark object-led direction: hero-object, seed 1714961011. No new direction draw, photographs, generated assets or dependencies were needed.
 
 ## Result

@@ -1,7 +1,9 @@
-// Keep the glazed +Y face toward the camera while the donut turns about its own axis.
+// Favor the glazed face, with one relaxed turnover per cycle to reveal the pastry underneath.
 export const donutRotationOrder='ZXY';
 export function donutPose(seconds){
-  return [1.02+Math.sin(seconds*.68)*.17,seconds*.72,.12+Math.sin(seconds*.43)*.14];
+  const progress=Math.max(0,Math.min(1,((seconds%24)-8)/8));
+  const turnover=progress*progress*progress*(progress*(progress*6-15)+10)*Math.PI*2;
+  return [1.02+Math.sin(seconds*.68)*.17+turnover,seconds*.72,.12+Math.sin(seconds*.43)*.14];
 }
 
 export function createRenderLoop(draw,canRun,{request=requestAnimationFrame,cancel=cancelAnimationFrame}={}){

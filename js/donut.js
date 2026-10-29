@@ -85,7 +85,8 @@ export async function mountDonut(figure,{broken=false,onProgress}={}){
       }`});resources.push(material);
     const postScene=new THREE.Scene(),quad=new THREE.PlaneGeometry(2,2),postCamera=new THREE.Camera();resources.push(quad);postScene.add(new THREE.Mesh(quad,material));
     function resize(){
-      const {width,height}=stage.getBoundingClientRect();if(!width||!height)return;
+      // Keep shader/canvas coordinates in layout pixels, independent of the hero's animated CSS scale.
+      const width=stage.clientWidth,height=stage.clientHeight;if(!width||!height)return;
       renderer.setSize(width,height,false);materialTarget.setSize(Math.ceil(width*renderer.getPixelRatio()),Math.ceil(height*renderer.getPixelRatio()));normalTarget.setSize(Math.ceil(width),Math.ceil(height));
       uniforms.resolution.value.set(width,height);uniforms.radius.value=Math.min(115,Math.max(78,width*.17));camera.aspect=width/height;camera.position.z=4.9/Math.min(camera.aspect,1);camera.updateProjectionMatrix();camera.updateMatrixWorld();dirty=true;wake();
     }
@@ -98,8 +99,8 @@ export async function mountDonut(figure,{broken=false,onProgress}={}){
       let overStage=false;
       if(pointerPresent){
         const rect=stage.getBoundingClientRect();
-        cursor.set((clientPointer.x-rect.left)*stage.clientWidth/rect.width,(rect.bottom-clientPointer.y)*stage.clientHeight/rect.height);
-        overStage=cursor.x>=0&&cursor.x<=stage.clientWidth&&cursor.y>=0&&cursor.y<=stage.clientHeight;
+        cursor.set((clientPointer.x-rect.left)*uniforms.resolution.value.x/rect.width,(rect.bottom-clientPointer.y)*uniforms.resolution.value.y/rect.height);
+        overStage=clientPointer.x>=rect.left&&clientPointer.x<=rect.right&&clientPointer.y>=rect.top&&clientPointer.y<=rect.bottom;
       }
       const previous=active,desired=(pointerPresent&&overStage)||focused?1:0;active+=(desired-active)*(1-Math.exp(-dt*16));if(active<.001)active=0;
       uniforms.power.value=active;uniforms.time.value=now/1000;

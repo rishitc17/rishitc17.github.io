@@ -1,5 +1,5 @@
 import {entries,db,mediaUrl,escapeHTML as esc,safeUrl,labels,statuses} from './data.js';
-import {donutMarkup,mountDonut} from './donut.js?v=4';
+import {donutMarkup,mountDonut} from './donut.js?v=5';
 import {mountMotion,revealCollection} from './motion.js?v=4';
 import {cards,tags} from './collections.js?v=4';
 import {markdown} from './markdown.js';

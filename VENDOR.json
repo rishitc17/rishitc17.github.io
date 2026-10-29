@@ -7,7 +7,7 @@
     "fontawesome": "6.7.2",
     "gsap": "3.13.0"
   },
-  "source": "Versioned jsDelivr npm distributions; Google Fonts Archivo and Manrope distributions",
+  "source": "Versioned jsDelivr npm distributions; Google Fonts Archivo, Manrope and Chakra Petch distributions",
   "files": [
     {
       "file": "assets/vendor/fontawesome.css",
@@ -20,6 +20,10 @@
     {
       "file": "assets/vendor/licenses/archivo.txt",
       "sha256": "108b4e57c9c796d3d38d0428ca7ee39de47ad93187302718d9b2d8864b9b716b"
+    },
+    {
+      "file": "assets/vendor/licenses/chakra-petch.txt",
+      "sha256": "13831d02389d917d22fcfa6c79f98f8acbf61d230add0e73a4d4dc5f3bfb9e56"
     },
     {
       "file": "assets/vendor/licenses/dompurify.txt",
@@ -92,6 +96,14 @@
     {
       "file": "assets/fonts/archivo-900.ttf",
       "sha256": "a375170e85070f94544fc0653836f5271b4421aef5e1f33466465ed2fca2c335"
+    },
+    {
+      "file": "assets/fonts/chakra-petch-400.ttf",
+      "sha256": "a5466b946c7decc8021748dcde8b25b8a5325539a341ba9fb59307815b28da5d"
+    },
+    {
+      "file": "assets/fonts/chakra-petch-700.ttf",
+      "sha256": "c9c2ee076c89bce96fe318e91d1ff06f0b5217175373755adb70365a66d4ec64"
     },
     {
       "file": "assets/fonts/manrope-400.ttf",

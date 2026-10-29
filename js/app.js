@@ -1,6 +1,6 @@
 import {entries,db,mediaUrl,escapeHTML as esc,safeUrl,formatDate,labels,statuses} from './data.js';
-import {donutMarkup,mountDonut} from './hero.js?v=2';
-import {mountMotion,revealCollection} from './motion.js?v=2';
+import {donutMarkup,mountDonut} from './donut.js?v=3';
+import {mountMotion,revealCollection} from './motion.js?v=3';
 import {markdown} from './markdown.js';
 import {config} from './config.js';
 const main=document.querySelector('main'),nav=document.querySelector('nav'),menu=document.querySelector('.menu-toggle'),lightbox=document.querySelector('#lightbox');
@@ -9,23 +9,30 @@ const descriptions={projects:'Software, experiments, and ideas made real.',writi
 function tags(row){return row.tags?.length?`<ul class="tags">${row.tags.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:'';}
 function empty(kind,filtered=false){return `<div class="empty-state" role="status"><p>${filtered?'No entries match. Try a different search or clear the filters.':`No ${kind==='3d'?'renders':labels[kind].toLowerCase()} published yet.`}</p></div>`;}
 function errorMarkup(){return '<div class="collection-state error" role="alert"><p>The collection could not be loaded. Please check your connection and try again.</p><button class="text-link" data-retry>Reload collection</button></div>';}
-function loading(kind){return `<p class="collection-state" role="status">Loading ${esc(labels[kind].toLowerCase())}…</p>`;}
+function loading(kind){const label=kind?labels[kind].toLowerCase():'collection';return `<div class="collection-skeleton"><p class="collection-state loading-state" role="status"><span class="loading-orbit" aria-hidden="true"></span>Loading ${esc(label)}…</p></div>`;}
 function image(row,extra=''){return `<img data-media="${esc(row.image_path||'')}" alt="${esc(row.title)}" loading="lazy" ${extra}>`;}
 function cards(kind,rows){
   if(!rows.length)return empty(kind);
   if(kind==='projects')return `<div class="project-list">${rows.map(r=>`<a class="project-card" href="/projects/${esc(r.slug)}"><div class="project-image">${image(r)}</div><div class="project-copy"><span class="entry-date">${esc(r.date_label)}</span><h3>${esc(r.title)}</h3><p>${esc(r.description)}</p>${tags(r)}<span class="status-label">${esc(statuses[r.status])}</span><span class="text-link" style="display:flex">Read the project <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div></a>`).join('')}</div>`;
   if(kind==='writing')return `<div class="writing-list">${rows.map(r=>`<a class="writing-row" href="${esc(safeUrl(r.link))}" target="_blank" rel="noopener noreferrer"><time datetime="${esc(r.date)}">${formatDate(r.date)}</time><div><h3>${esc(r.title)}</h3><p>${esc(r.description)}</p>${tags(r)}</div><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i><span class="sr-only"> (opens in a new tab)</span></a>`).join('')}</div>`;
-  if(kind==='3d')return `<div class="art-grid">${rows.map(r=>`<button class="art-card" data-lightbox="${r.id}" aria-label="View ${esc(r.title)}"><div class="art-image">${image(r)}</div><div class="art-caption"><h3>${esc(r.title)}</h3><span>${r.original?'Original work':'Tutorial study'}</span></div></button>`).join('')}</div>`;
+  if(kind==='3d')return `<div class="art-grid">${rows.map(r=>`<button class="art-card" data-lightbox="${r.id}" aria-label="View ${esc(r.title)}"><div class="art-image">${image(r)}</div><div class="art-caption"><h3>${esc(r.title)}</h3><span>${r.original?'Original work':'Tutorial study'}</span>${r.date_label?`<span class="render-date">${esc(r.date_label)}</span>`:''}</div></button>`).join('')}</div>`;
   return `<div class="recognition-list">${rows.map(r=>`<button class="recognition-row" data-lightbox="${r.id}"><time datetime="${esc(r.date)}">${formatDate(r.date)}</time><div><h3>${esc(r.title)}</h3><p>${esc(r.description)}</p>${tags(r)}</div><i class="fa-solid fa-expand" aria-hidden="true"></i><span class="sr-only">View certificate</span></button>`).join('')}</div>`;
 }
 async function hydrate(root,rows){
-  root.querySelectorAll('[data-media]').forEach(async img=>{try{const url=await mediaUrl(img.dataset.media);if(!url)throw Error('No image');img.src=url;img.addEventListener('error',()=>{img.outerHTML='<div class="image-failed">Image unavailable</div>';},{once:true});}catch{if(img.isConnected)img.outerHTML='<div class="image-failed">Image unavailable</div>';}});
+  root.querySelectorAll('[data-media]').forEach(async img=>{
+    const frame=img.closest('.art-image,.project-image');
+    const status=document.createElement('span');status.className='media-loading';status.setAttribute('role','status');status.textContent='Loading image…';frame?.append(status);
+    const fail=()=>{status.remove();if(img.isConnected)img.outerHTML='<div class="image-failed">Image unavailable. Reload the collection to try again.</div>';};
+    img.addEventListener('load',()=>status.remove(),{once:true});img.addEventListener('error',fail,{once:true});
+    try{const url=await mediaUrl(img.dataset.media);if(!url)throw Error('No image');img.src=url;}catch{fail();}
+  });
   root.querySelectorAll('[data-lightbox]').forEach(button=>button.addEventListener('click',()=>openLightbox(rows.find(x=>x.id===button.dataset.lightbox))));
 }
 let lightboxVersion=0;
 async function openLightbox(row){
   const token=++lightboxVersion;
   lightbox.querySelector('h2').textContent=row.title;lightbox.querySelector('p').textContent=row.description;
+  if(row.date_label)lightbox.querySelector('p').textContent+=`${row.description?' · ':''}${row.date_label}`;
   const media=lightbox.querySelector('.lightbox-media');media.innerHTML='<p class="collection-state" role="status">Loading image…</p>';lightbox.showModal();
   try{const url=await mediaUrl(row.image_path);if(token!==lightboxVersion||!lightbox.open)return;const img=new Image();img.alt=row.title;img.src=url;img.onload=()=>{if(token===lightboxVersion)media.replaceChildren(img);};img.onerror=()=>{media.innerHTML='<p class="collection-state" role="alert">This image could not be loaded. Close and try again.</p>';};}catch{media.innerHTML='<p class="collection-state" role="alert">This image could not be loaded. Close and try again.</p>';}
 }
@@ -34,20 +41,28 @@ lightbox.addEventListener('click',e=>{if(e.target===lightbox){const r=lightbox.g
 lightbox.addEventListener('close',()=>{lightboxVersion++;lightbox.querySelector('.lightbox-media').replaceChildren();});
 async function home(token){
   main.innerHTML=`
-    <section class="hero" id="top">
-      <div class="hero-stage">
-        <div class="hero-note"><p>I build software, <br>write, and make <br>3D things.</p></div>
-        <div class="hero-art">${donutMarkup()}</div>
-      </div>
-      <h1 class="hero-title"><span>Rishit</span> <span>Choudhary</span></h1>
-      <div class="hero-bottom"><p>Software, writing & 3D.</p><a class="hero-action" href="#selected-work"><span>View work</span><span class="action-disc"><i class="fa-solid fa-arrow-down" aria-hidden="true"></i></span></a></div>
+    <section class="space-hero" id="top">
+      <div class="space-copy"><h1><span>Rishit</span><span>Choudhary</span></h1><p>I build software, explore mathematics, write, and make things in Blender.</p><a class="space-action" href="#selected-work">View work <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a></div>
+      <div class="space-art">${donutMarkup()}</div>
     </section>
-    <section class="studio-index" id="selected-work"><h2>Things<br>I’ve made.</h2><p>Software, writing, and scenes from Blender. Some finished, some still taking shape.</p></section>
-    ${Object.keys(labels).map(kind=>`<section class="collection-section section-${kind}" id="home-${kind}"><div class="section-heading"><div><h2><a href="/${kind}">${labels[kind]}</a></h2><p>${descriptions[kind]}</p></div><a class="text-link" href="/${kind}">All ${labels[kind].toLowerCase()}</a></div><div data-section="${kind}" aria-live="polite">${loading(kind)}</div></section>`).join('')}`;
-  cleanupMotion=mountMotion(main);
-  const figure=main.querySelector('.donut-figure');mountDonut(figure).then(dispose=>{if(token===version)disposeDonut=dispose;else dispose();});
-  async function load(){try{const all=await entries();if(token!==version)return;Object.keys(labels).forEach(kind=>{const rows=all.filter(r=>r.kind===kind);const featured=rows.filter(r=>r.featured);const selected=(featured.length?featured:rows).slice(0,kind==='writing'?3:2);const root=main.querySelector(`[data-section="${kind}"]`);root.closest('section').classList.toggle('is-empty',!selected.length);root.innerHTML=cards(kind,selected);hydrate(root,selected);revealCollection(root);});window.ScrollTrigger?.refresh();}catch{if(token!==version)return;main.querySelectorAll('[data-section]').forEach(root=>{root.innerHTML=errorMarkup();root.querySelector('[data-retry]').onclick=load;});}}
-  await load();
+    <section class="featured-space" id="selected-work"><div class="featured-heading"><h2>In the collection</h2><p>Things I’ve built, written, and made in three dimensions.</p></div><div data-featured aria-live="polite">${loading()}</div></section>`;
+  const figure=main.querySelector('.donut-figure');
+  const modelReady=mountDonut(figure,{onProgress:message=>window.portfolioBoot?.status(message)}).then(dispose=>{if(token===version)disposeDonut=dispose;else dispose();window.portfolioBoot?.ready('scene');});
+  async function load(){
+    const root=main.querySelector('[data-featured]');
+    try{
+      const all=await entries();if(token!==version)return;
+      root.innerHTML=Object.keys(labels).map(kind=>{
+        const rows=all.filter(r=>r.kind===kind),featured=rows.filter(r=>r.featured),selected=(featured.length?featured:rows).slice(0,kind==='writing'?3:2);
+        if(!selected.length)return '';
+        return `<section class="collection-section section-${kind}" id="home-${kind}"><div class="section-heading"><h2>${labels[kind]}</h2><a class="text-link" href="/${kind}">All ${labels[kind].toLowerCase()}</a></div>${cards(kind,selected)}</section>`;
+      }).join('')||'<p class="collection-state">There are no published pieces yet.</p>';
+      hydrate(root,all);
+    }catch{if(token!==version)return;root.innerHTML=errorMarkup();root.querySelector('[data-retry]').onclick=load;}
+    finally{window.portfolioBoot?.ready('collection');}
+  }
+  await Promise.all([load(),modelReady,document.fonts.ready]);
+  if(token===version){cleanupMotion=mountMotion(main);revealCollection(main);window.ScrollTrigger?.refresh();}
 }
 async function collection(kind,token){
   document.title=`${labels[kind]} · Rishit Choudhary`;
@@ -73,7 +88,7 @@ async function project(slug,token,preview=false){
     hydrate(main,[row]);
   }await load();
 }
-async function notFound(token){document.title='Signal lost · Rishit Choudhary';main.innerHTML=`<section class="not-found"><div><h1>404</h1><h2>Signal lost.</h2><p>This path doesn’t resolve. Neither does this donut, apparently.</p><a class="button" href="/">Back home</a></div>${donutMarkup({broken:true})}</section>`;mountDonut(main.querySelector('figure'),{broken:true}).then(dispose=>{if(token===version)disposeDonut=dispose;else dispose();});}
+async function notFound(token){document.title='Signal lost · Rishit Choudhary';main.innerHTML=`<section class="not-found"><div><h1>404</h1><h2>Signal lost.</h2><p>This path doesn’t resolve. Neither does this donut, apparently.</p><a class="button" href="/">Back home</a></div>${donutMarkup({broken:true})}</section>`;const dispose=await mountDonut(main.querySelector('figure'),{broken:true,onProgress:message=>window.portfolioBoot?.status(message)});if(token===version)disposeDonut=dispose;else dispose();}
 export async function navigate({focus=false}={}){
   const token=++version;disposeDonut();disposeDonut=()=>{};cleanupMotion();cleanupMotion=()=>{};cleanupPage();cleanupPage=()=>{};if(lightbox.open)lightbox.close();closeMenu();
   let route=location.pathname.replace(/\/$/,'')||'/';
@@ -86,7 +101,7 @@ export async function navigate({focus=false}={}){
     else if(/^\/admin\/preview\/[a-f0-9-]+$/.test(route))await project(route.split('/')[3],token,true);
     else if(route==='/admin') {
       document.title='Studio · Rishit Choudhary';
-      const {mountAdmin}=await import('./admin.js?v=2');
+      const {mountAdmin}=await import('./admin.js?v=3');
       if(token===version)cleanupPage=await mountAdmin(main);
     } else await notFound(token);
   } catch(error) {
@@ -95,13 +110,13 @@ export async function navigate({focus=false}={}){
     main.querySelector('[data-retry]').onclick=()=>navigate();
     console.error(error);
   }
-  if(token===version){if(focus)main.focus({preventScroll:true});if(location.hash)requestAnimationFrame(()=>{try{document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();}catch{}});}
+  if(token===version){main.setAttribute('aria-busy','false');window.portfolioBoot?.finish();if(focus)main.focus({preventScroll:true});if(location.hash)requestAnimationFrame(()=>{try{document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();}catch{}});}
 }
 function closeMenu(){nav.classList.remove('is-open');menu.setAttribute('aria-expanded','false');}
 menu.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));nav.classList.toggle('is-open',open);});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&nav.classList.contains('is-open')){closeMenu();menu.focus();}});
 document.addEventListener('click',async e=>{const a=e.target.closest('a');if(!a||e.defaultPrevented||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||a.target==='_blank'||a.hasAttribute('download'))return;const url=new URL(a.href,location.href);if(url.origin!==location.origin)return;if(url.pathname===location.pathname&&url.hash){closeMenu();return;}e.preventDefault();if(cleanupPage.canLeave&&!await cleanupPage.canLeave())return;lastRoute=url.pathname+url.search+url.hash;history.pushState({},'',lastRoute);window.scrollTo(0,0);navigate({focus:true});});
-window.addEventListener('popstate',async()=>{if(cleanupPage.canLeave&&!await cleanupPage.canLeave()){history.pushState({},'',lastRoute);return;}lastRoute=location.pathname+location.search+location.hash;navigate({focus:true});});
+window.addEventListener('popstate',async()=>{const nextRoute=location.pathname+location.search+location.hash;if(nextRoute.split('#')[0]===lastRoute.split('#')[0]){lastRoute=nextRoute;return;}if(cleanupPage.canLeave&&!await cleanupPage.canLeave()){history.pushState({},'',lastRoute);return;}lastRoute=nextRoute;navigate({focus:true});});
 document.querySelector('#back-top').addEventListener('click',e=>{e.preventDefault();window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});document.querySelector('.wordmark').focus({preventScroll:true});});
 let previousScroll=0;window.addEventListener('scroll',()=>{const current=window.scrollY,header=document.querySelector('.site-header');if(!nav.classList.contains('is-open')&&!header.contains(document.activeElement))header.classList.toggle('is-hidden',current>previousScroll&&current>180);previousScroll=current;},{passive:true});
 document.querySelector('.site-header').addEventListener('focusin',()=>document.querySelector('.site-header').classList.remove('is-hidden'));

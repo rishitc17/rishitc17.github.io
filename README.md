@@ -26,7 +26,7 @@ Visit `/admin` and sign in with the existing authorised Supabase account. There 
 
 - Projects: hero image, natural-language dates, tags, optional links, status, editable Markdown or Markdown-file upload, manual order, private preview.
 - Writing: description, source URL, tags, real date; newest first.
-- 3D: image, description, original/tutorial flag; manual order and a public lightbox.
+- 3D: image, description, natural-language date/date range, original/tutorial flag; manual order and a public lightbox. Dates appear in the list, gallery and lightbox without changing the manual sort.
 - Recognition: certificate image, description, tags, real date; newest first.
 - Every section supports drafts, publishing, home-page featuring, editing and deletion.
 
@@ -36,15 +36,15 @@ The applied database definition is in `supabase/schema.sql`. `supabase/verify.sq
 
 ## Donut
 
-`tools/export_donut.py` exports the original mesh, realises geometry-node instances, relinks existing Poliigon images from the local library, and bakes the existing materials into a self-contained GLB. It leaves the source `.blend` unchanged. Run with Blender:
+`tools/export_donut.py` calls the complete export, preserving evaluated surfaces and all 150 sprinkle instances. It copies the six colors from the source sprinkle ramp, relinks the existing local textures and bakes the surface colors into a self-contained GLB. It never saves the source `.blend`. The older exporter lost instances by assuming the node output was named Geometry; this file's output is named Instances. Run with Blender:
 
 ```sh
 blender --background --factory-startup --python tools/export_donut.py
 ```
 
-The idle model renders directly, without ASCII post-processing. During pointer/touch interaction, the realistic pixels, ASCII luminance and silhouette sample the same render target. A raycast restricts activation to the model, and a 32–52px mask translates the local surface around the pointer. The model rotates continuously through multiple axes; one full turn on its main axis takes about 6.6 seconds. Keyboard focus holds rotation; reduced-motion starts paused. Rendering suspends outside the viewport and in hidden tabs. A real still is shown when WebGL is unavailable. The 404 variant uses missing bands and displaced red characters. There are no donut mode buttons or visible instructions.
+The idle model renders directly. Interaction uses synchronized material and normal/depth passes of the same geometry and pose. Depth reconstructs view-space surface positions; proximity is measured in 3D around the raycast hit. This gives a surface-conforming transition with an approximately 42–56px local footprint, rather than stochastic dots inside a circular screen mask. The character alphabet and lighting approach follow [Andy Sloane's explanation of donut.c](https://www.a1k0n.net/2011/07/20/donut-math.html). The model rotates continuously through multiple axes; one main-axis turn takes about 6.6 seconds. Keyboard focus holds rotation and reduced motion disables autoplay. Hidden and offscreen rendering suspends. The corrected real render is the WebGL fallback. There are no mode buttons or operating hints.
 
-The interface is dark only. The name-led hero, crimson work chapter and original model establish the visual direction. Vendored GSAP and ScrollTrigger animate entrances and the hero with native scrolling; reduced-motion keeps all content visible without travel. See `DESIGN.md` for the direction and its constraints.
+The interface is dark only. An object-led hero and technical Chakra Petch headings replace the editorial chapter treatment. The footer is compact. The loading sequence animates a projected ASCII torus and reports real initialization stages, then releases the interface when model/data/fonts settle. Vendored GSAP and ScrollTrigger retain native scrolling and a reduced-motion path. See `DESIGN.md` for the direction and its constraints.
 
 ## Dependencies and attribution
 
@@ -54,7 +54,7 @@ The interface is dark only. The name-led hero, crimson work chapter and original
 - Marked 16.3.0, MIT
 - DOMPurify 3.2.7, Apache-2.0 OR MPL-2.0
 - Font Awesome Free 6.7.2, font files under SIL OFL 1.1 and CSS under MIT
-- Archivo and Manrope, SIL Open Font License
+- Chakra Petch, Manrope and legacy Archivo font files, SIL Open Font License
 - Donut model and profile image supplied by Rishit Choudhary; donut follows the BlenderGuru tutorial. Original local material assets are baked into the supplied work.
 
-See `VENDOR.json` for file hashes and source versions, `DESIGN.md` for design reasons and `REDESIGN-VERIFICATION.md` for the current delivery checks. `VERIFICATION.md` preserves the initial CMS/database verification.
+See `VENDOR.json` for hashes, `DESIGN.md` for design reasons and `SPATIAL-VERIFICATION.md` for current checks. `VERIFICATION.md` and `REDESIGN-VERIFICATION.md` preserve earlier delivery evidence.

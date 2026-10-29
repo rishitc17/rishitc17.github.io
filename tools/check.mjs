@@ -7,4 +7,5 @@ for(const file of ['index.html','404.html','assets/models/donut.glb','assets/ima
 for(const file of ['index.html',...fs.readdirSync('js').map(f=>'js/'+f)])if(fs.readFileSync(file,'utf8').includes('\u2014'))throw Error(`Em dash in ${file}`);
 const sql=fs.readFileSync('supabase/schema.sql','utf8');if(!sql.includes('enable row level security')||!sql.includes('with check'))throw Error('Missing row policies');
 for(const entry of JSON.parse(fs.readFileSync('VENDOR.json','utf8')).files){if(crypto.createHash('sha256').update(fs.readFileSync(entry.file)).digest('hex')!==entry.sha256)throw Error(`Vendor file changed: ${entry.file}`);}
-console.log('PASS: JavaScript syntax, required assets, copy punctuation, and policy source.');
+execFileSync(process.execPath,['tools/check_donut.mjs'],{stdio:'pipe'});
+console.log('PASS: JavaScript syntax, required assets, sprinkle geometry/palette, copy punctuation, and policy source.');

@@ -50,8 +50,8 @@ export async function mountDonut(figure,{broken=false,onProgress}={}){
     resources.push(materialTarget,normalTarget,normalMaterial);
     const atlas=document.createElement('canvas');atlas.width=12*32;atlas.height=48;
     const ctx=atlas.getContext('2d');ctx.font='38px monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';
-    // The original donut.c illumination alphabet, rather than texture brightness.
-    [...'.,-~:;=!*#$@'].forEach((char,index)=>ctx.fillText(char,index*32+16,24));
+    // Light-to-dense ASCII letters and punctuation, selected by surface illumination.
+    [...' .:irsXAMW@'].forEach((char,index)=>ctx.fillText(char,index*32+16,24));
     const glyphTexture=new THREE.CanvasTexture(atlas);resources.push(glyphTexture);
     const ground=new THREE.Color(getComputedStyle(stage).getPropertyValue('--ground').trim());
     const uniforms={image:{value:materialTarget.texture},normals:{value:normalTarget.texture},atlas:{value:glyphTexture},resolution:{value:new THREE.Vector2()},pointer:{value:cursor},power:{value:0},radius:{value:110},ground:{value:ground},broken:{value:broken?1:0},time:{value:0}};

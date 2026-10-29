@@ -30,6 +30,8 @@ Visit `/admin` and sign in with the existing authorised Supabase account. There 
 - Recognition: certificate image, description, tags, real date; newest first.
 - Every section supports drafts, publishing, home-page featuring, editing and deletion.
 
+Home uses vertical cards for every category. Collection pages use project and writing cards, a certificate gallery, and natural-image-ratio 3D masonry. Tags are pills, dates have calendar markers, and project state uses a separate rectangular label. Importing a Markdown file fills the same editable content field used by the public project page; it is not a separate write-up.
+
 The up/down controls persist manual order transactionally. Drafts and their files are private. Image uploads support PNG, JPEG, WebP and AVIF up to 15 MB. Markdown files can be up to 2 MB. Markdown output is sanitised with DOMPurify. Published media use five-minute signed URLs, so an already-issued URL may remain usable until expiry after unpublishing. Previously downloaded files cannot be recalled.
 
 The applied database definition is in `supabase/schema.sql`. `supabase/verify.sql` tests owner/anonymous/other-user access and ordering inside a transaction that rolls back all fixtures. Do not reapply the initial schema to an already configured project.
@@ -42,7 +44,7 @@ The applied database definition is in `supabase/schema.sql`. `supabase/verify.sq
 blender --background --factory-startup --python tools/export_donut.py
 ```
 
-The idle model renders directly. Interaction uses synchronized material and normal/depth passes of the same geometry and pose. Depth reconstructs view-space surface positions; proximity is measured in 3D around the raycast hit. This gives a surface-conforming transition with an approximately 42–56px local footprint, rather than stochastic dots inside a circular screen mask. The character alphabet and lighting approach follow [Andy Sloane's explanation of donut.c](https://www.a1k0n.net/2011/07/20/donut-math.html). The model rotates continuously through multiple axes; one main-axis turn takes about 6.6 seconds. Keyboard focus holds rotation and reduced motion disables autoplay. Hidden and offscreen rendering suspends. The corrected real render is the WebGL fallback. There are no mode buttons or operating hints.
+The idle model renders directly. Interaction uses synchronized material and normal passes of the complete model, with one camera and pose. The cursor removes a soft local area of the foreground to reveal the aligned ASCII clone behind it. The 78–115px radius and 8×12px glyph cells replace the earlier tiny surface patch. Pointer coordinates follow the hero's scroll translation and scale. The character alphabet and lighting approach follow [Andy Sloane's explanation of donut.c](https://www.a1k0n.net/2011/07/20/donut-math.html). Rotation turns around the donut's own axis in about 8.7 seconds with bounded tilt and roll; the glaze stays toward the camera. Keyboard focus holds rotation and reduced motion disables autoplay. Hidden and offscreen rendering cancels pending frames, then visibility/focus restoration resumes without pointer input. The corrected real render is the WebGL fallback. There are no mode buttons or operating hints. `tools/check_donut_motion.mjs` checks the glaze-facing invariant and frame cancellation/resumption.
 
 The interface is dark only. An object-led hero and technical Chakra Petch headings replace the editorial chapter treatment. The footer is compact. The loading sequence animates a projected ASCII torus and reports real initialization stages, then releases the interface when model/data/fonts settle. Vendored GSAP and ScrollTrigger retain native scrolling and a reduced-motion path. See `DESIGN.md` for the direction and its constraints.
 
@@ -57,4 +59,4 @@ The interface is dark only. An object-led hero and technical Chakra Petch headin
 - Chakra Petch, Manrope and legacy Archivo font files, SIL Open Font License
 - Donut model and profile image supplied by Rishit Choudhary; donut follows the BlenderGuru tutorial. Original local material assets are baked into the supplied work.
 
-See `VENDOR.json` for hashes, `DESIGN.md` for design reasons and `SPATIAL-VERIFICATION.md` for current checks. `VERIFICATION.md` and `REDESIGN-VERIFICATION.md` preserve earlier delivery evidence.
+See `VENDOR.json` for hashes, `DESIGN.md` for design reasons and `COLLECTION-VERIFICATION.md` for current checks. The other verification documents preserve earlier delivery evidence.

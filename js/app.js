@@ -1,29 +1,22 @@
-import {entries,db,mediaUrl,escapeHTML as esc,safeUrl,formatDate,labels,statuses} from './data.js';
-import {donutMarkup,mountDonut} from './donut.js?v=3';
-import {mountMotion,revealCollection} from './motion.js?v=3';
+import {entries,db,mediaUrl,escapeHTML as esc,safeUrl,labels,statuses} from './data.js';
+import {donutMarkup,mountDonut} from './donut.js?v=4';
+import {mountMotion,revealCollection} from './motion.js?v=4';
+import {cards,tags} from './collections.js?v=4';
 import {markdown} from './markdown.js';
 import {config} from './config.js';
 const main=document.querySelector('main'),nav=document.querySelector('nav'),menu=document.querySelector('.menu-toggle'),lightbox=document.querySelector('#lightbox');
 let version=0,disposeDonut=()=>{},cleanupMotion=()=>{},cleanupPage=()=>{},lastRoute=location.pathname+location.search+location.hash;
 const descriptions={projects:'Software, experiments, and ideas made real.',writing:'Thinking out loud, one piece at a time.','3d':'Experiments in shape, light, and material.',recognition:'Milestones along the way.'};
-function tags(row){return row.tags?.length?`<ul class="tags">${row.tags.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:'';}
 function empty(kind,filtered=false){return `<div class="empty-state" role="status"><p>${filtered?'No entries match. Try a different search or clear the filters.':`No ${kind==='3d'?'renders':labels[kind].toLowerCase()} published yet.`}</p></div>`;}
 function errorMarkup(){return '<div class="collection-state error" role="alert"><p>The collection could not be loaded. Please check your connection and try again.</p><button class="text-link" data-retry>Reload collection</button></div>';}
 function loading(kind){const label=kind?labels[kind].toLowerCase():'collection';return `<div class="collection-skeleton"><p class="collection-state loading-state" role="status"><span class="loading-orbit" aria-hidden="true"></span>Loading ${esc(label)}…</p></div>`;}
 function image(row,extra=''){return `<img data-media="${esc(row.image_path||'')}" alt="${esc(row.title)}" loading="lazy" ${extra}>`;}
-function cards(kind,rows){
-  if(!rows.length)return empty(kind);
-  if(kind==='projects')return `<div class="project-list">${rows.map(r=>`<a class="project-card" href="/projects/${esc(r.slug)}"><div class="project-image">${image(r)}</div><div class="project-copy"><span class="entry-date">${esc(r.date_label)}</span><h3>${esc(r.title)}</h3><p>${esc(r.description)}</p>${tags(r)}<span class="status-label">${esc(statuses[r.status])}</span><span class="text-link" style="display:flex">Read the project <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div></a>`).join('')}</div>`;
-  if(kind==='writing')return `<div class="writing-list">${rows.map(r=>`<a class="writing-row" href="${esc(safeUrl(r.link))}" target="_blank" rel="noopener noreferrer"><time datetime="${esc(r.date)}">${formatDate(r.date)}</time><div><h3>${esc(r.title)}</h3><p>${esc(r.description)}</p>${tags(r)}</div><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i><span class="sr-only"> (opens in a new tab)</span></a>`).join('')}</div>`;
-  if(kind==='3d')return `<div class="art-grid">${rows.map(r=>`<button class="art-card" data-lightbox="${r.id}" aria-label="View ${esc(r.title)}"><div class="art-image">${image(r)}</div><div class="art-caption"><h3>${esc(r.title)}</h3><span>${r.original?'Original work':'Tutorial study'}</span>${r.date_label?`<span class="render-date">${esc(r.date_label)}</span>`:''}</div></button>`).join('')}</div>`;
-  return `<div class="recognition-list">${rows.map(r=>`<button class="recognition-row" data-lightbox="${r.id}"><time datetime="${esc(r.date)}">${formatDate(r.date)}</time><div><h3>${esc(r.title)}</h3><p>${esc(r.description)}</p>${tags(r)}</div><i class="fa-solid fa-expand" aria-hidden="true"></i><span class="sr-only">View certificate</span></button>`).join('')}</div>`;
-}
 async function hydrate(root,rows){
   root.querySelectorAll('[data-media]').forEach(async img=>{
-    const frame=img.closest('.art-image,.project-image');
+    const frame=img.closest('.card-media');
     const status=document.createElement('span');status.className='media-loading';status.setAttribute('role','status');status.textContent='Loading image…';frame?.append(status);
     const fail=()=>{status.remove();if(img.isConnected)img.outerHTML='<div class="image-failed">Image unavailable. Reload the collection to try again.</div>';};
-    img.addEventListener('load',()=>status.remove(),{once:true});img.addEventListener('error',fail,{once:true});
+    img.addEventListener('load',()=>{status.remove();frame?.classList.add('media-ready');},{once:true});img.addEventListener('error',fail,{once:true});
     try{const url=await mediaUrl(img.dataset.media);if(!url)throw Error('No image');img.src=url;}catch{fail();}
   });
   root.querySelectorAll('[data-lightbox]').forEach(button=>button.addEventListener('click',()=>openLightbox(rows.find(x=>x.id===button.dataset.lightbox))));
@@ -55,7 +48,7 @@ async function home(token){
       root.innerHTML=Object.keys(labels).map(kind=>{
         const rows=all.filter(r=>r.kind===kind),featured=rows.filter(r=>r.featured),selected=(featured.length?featured:rows).slice(0,kind==='writing'?3:2);
         if(!selected.length)return '';
-        return `<section class="collection-section section-${kind}" id="home-${kind}"><div class="section-heading"><h2>${labels[kind]}</h2><a class="text-link" href="/${kind}">All ${labels[kind].toLowerCase()}</a></div>${cards(kind,selected)}</section>`;
+        return `<section class="collection-section section-${kind}" id="home-${kind}"><div class="section-heading"><h2>${labels[kind]}</h2><a class="text-link" href="/${kind}">All ${labels[kind].toLowerCase()}</a></div>${cards(kind,selected,{home:true})}</section>`;
       }).join('')||'<p class="collection-state">There are no published pieces yet.</p>';
       hydrate(root,all);
     }catch{if(token!==version)return;root.innerHTML=errorMarkup();root.querySelector('[data-retry]').onclick=load;}
@@ -84,7 +77,7 @@ async function project(slug,token,preview=false){
     if(error){main.innerHTML=`<div class="collection-page">${errorMarkup()}</div>`;main.querySelector('[data-retry]').onclick=load;return;}
     if(!row){await notFound(token);return;}
     document.title=`${row.title} · Rishit Choudhary`;
-    main.innerHTML=`<div class="article-back"><a class="text-link" href="${preview?'/admin':'/projects'}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> ${preview?'Back to studio':'All projects'}</a>${preview?'<p class="notice">Private preview. Only your account can view this draft.</p>':''}</div><article><header class="article-banner">${row.image_path?image(row,'fetchpriority="high"'):''}<div class="article-banner-content"><h1>${esc(row.title)}</h1><p>${esc(row.description)}</p>${tags(row)}</div></header><div class="article-body"><p class="entry-date">${esc(row.date_label)}${row.date_label?' · ':''}${esc(statuses[row.status])}</p><div class="article-links">${safeUrl(row.link)?`<a class="button" href="${esc(safeUrl(row.link))}" target="_blank" rel="noopener noreferrer">Open live project <span class="sr-only">(new tab)</span></a>`:''}${safeUrl(row.github_url)?`<a class="button secondary" href="${esc(safeUrl(row.github_url))}" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i> View source <span class="sr-only">(new tab)</span></a>`:''}</div><div class="markdown">${row.markdown?markdown(row.markdown):'<p>The project write-up is still taking shape.</p>'}</div></div></article>`;
+    main.innerHTML=`<div class="article-back"><a class="text-link" href="${preview?'/admin':'/projects'}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> ${preview?'Back to studio':'All projects'}</a>${preview?'<p class="notice">Private preview. Only your account can view this draft.</p>':''}</div><article><header class="article-banner">${row.image_path?image(row,'fetchpriority="high"'):''}<div class="article-banner-content"><h1>${esc(row.title)}</h1><p>${esc(row.description)}</p>${tags(row)}</div></header><div class="article-body"><div class="article-meta">${row.date_label?`<span class="entry-date"><i class="fa-solid fa-calendar" aria-hidden="true"></i>${esc(row.date_label)}</span>`:''}<span class="status-label">${esc(statuses[row.status])}</span></div><div class="article-links">${safeUrl(row.link)?`<a class="button" href="${esc(safeUrl(row.link))}" target="_blank" rel="noopener noreferrer">Open live project <span class="sr-only">(new tab)</span></a>`:''}${safeUrl(row.github_url)?`<a class="button secondary" href="${esc(safeUrl(row.github_url))}" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i> View source <span class="sr-only">(new tab)</span></a>`:''}</div><div class="markdown">${row.markdown?markdown(row.markdown):'<p>The project write-up is still taking shape.</p>'}</div></div></article>`;
     hydrate(main,[row]);
   }await load();
 }
@@ -101,7 +94,7 @@ export async function navigate({focus=false}={}){
     else if(/^\/admin\/preview\/[a-f0-9-]+$/.test(route))await project(route.split('/')[3],token,true);
     else if(route==='/admin') {
       document.title='Studio · Rishit Choudhary';
-      const {mountAdmin}=await import('./admin.js?v=3');
+      const {mountAdmin}=await import('./admin.js?v=4');
       if(token===version)cleanupPage=await mountAdmin(main);
     } else await notFound(token);
   } catch(error) {

@@ -13,7 +13,7 @@ export function mountMotion(root) {
       intro.fromTo('.space-action',{y:16,opacity:0},{y:0,opacity:1,duration:.65},.3);
       intro.fromTo(document.querySelector('.wordmark img'),{scale:.65,rotation:-15},{scale:1,rotation:0,duration:.8},.3);
       gsap.to('.space-copy',{y:-35,ease:'none',scrollTrigger:{trigger:hero,start:'top top',end:'bottom top',scrub:.6}});
-      gsap.to('.space-art',{y:55,rotation:4,scale:1.05,ease:'none',scrollTrigger:{trigger:hero,start:'top top',end:'bottom top',scrub:.6}});
+      gsap.to('.space-art',{y:55,scale:1.05,ease:'none',scrollTrigger:{trigger:hero,start:'top top',end:'bottom top',scrub:.6}});
     }
     root.querySelectorAll('.featured-heading h2,.featured-heading p,.section-heading h2,.section-heading .text-link').forEach((element,index)=>{
       gsap.fromTo(element,{x:index%2?-16:16,opacity:0},{x:0,opacity:1,duration:.75,ease:'power3.out',scrollTrigger:{trigger:element,start:'top 94%',once:true}});

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {donutPose,donutRotationOrder,createRenderLoop} from './donut-motion.js?v=4';
 
 export function donutMarkup({broken=false}={}){
   return `<figure class="donut-figure${broken?' donut-broken':''}"><div class="donut-stage" tabindex="0" role="img" aria-label="${broken?'A fractured interactive ASCII donut':'Rotating sprinkle donut. Keyboard focus holds the rotation.'}"><img class="donut-poster" src="/assets/images/donut-poster.png?v=3" alt="" width="960" height="800"><span class="donut-loading" role="status">Loading 3D model…</span></div></figure>`;
@@ -23,11 +24,11 @@ export async function mountDonut(figure,{broken=false,onProgress}={}){
   const stage=figure.querySelector('.donut-stage'),loading=stage.querySelector('.donut-loading');
   const abort=new AbortController(),signal=abort.signal,resources=[];
   const motion=matchMedia('(prefers-reduced-motion:reduce)');
-  let renderer,model,frame=0,disposed=false,visible=true,focused=false,pointerPresent=false;
+  let renderer,model,loop,disposed=false,visible=true,focused=false,pointerPresent=false;
   let angle=0,last=0,entryTime=0,active=0,dirty=true,observer,resizeObserver;
-  const cursor=new THREE.Vector2(-1000,-1000),effectCursor=cursor.clone(),ndc=new THREE.Vector2(),raycaster=new THREE.Raycaster();
+  const cursor=new THREE.Vector2(-1000,-1000),clientPointer=cursor.clone();
   const dispose=()=>{
-    disposed=true;abort.abort();cancelAnimationFrame(frame);observer?.disconnect();resizeObserver?.disconnect();
+    disposed=true;abort.abort();loop?.stop();observer?.disconnect();resizeObserver?.disconnect();
     renderer?.dispose();resources.forEach(resource=>resource.dispose());
     model?.traverse(object=>{object.geometry?.dispose();for(const material of [].concat(object.material||[])){for(const value of Object.values(material))if(value?.isTexture)value.dispose();material.dispose();}});
   };
@@ -44,30 +45,24 @@ export async function mountDonut(figure,{broken=false,onProgress}={}){
     if(disposed){dispose();return dispose;}
     const bounds=new THREE.Box3().setFromObject(model),center=bounds.getCenter(new THREE.Vector3()),size=bounds.getSize(new THREE.Vector3());
     model.position.sub(center);const holder=new THREE.Group();holder.add(model);holder.scale.setScalar(3.35/Math.max(size.x,size.y,size.z));scene.add(holder);
-    const surfaces=[];model.traverse(object=>{if(object.isMesh&&!object.name.includes('Sprinkle'))surfaces.push(object);});
     const materialTarget=new THREE.WebGLRenderTarget(1,1,{type:THREE.HalfFloatType});materialTarget.samples=Math.min(4,renderer.capabilities.maxSamples);
     const normalTarget=new THREE.WebGLRenderTarget(1,1),normalMaterial=new THREE.MeshNormalMaterial();normalMaterial.toneMapped=false;
-    normalTarget.depthTexture=new THREE.DepthTexture(1,1,THREE.UnsignedShortType);
     resources.push(materialTarget,normalTarget,normalMaterial);
     const atlas=document.createElement('canvas');atlas.width=12*32;atlas.height=48;
-    const ctx=atlas.getContext('2d');ctx.font='30px monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';
+    const ctx=atlas.getContext('2d');ctx.font='38px monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';
     // The original donut.c illumination alphabet, rather than texture brightness.
     [...'.,-~:;=!*#$@'].forEach((char,index)=>ctx.fillText(char,index*32+16,24));
     const glyphTexture=new THREE.CanvasTexture(atlas);resources.push(glyphTexture);
     const ground=new THREE.Color(getComputedStyle(stage).getPropertyValue('--ground').trim());
-    const uniforms={image:{value:materialTarget.texture},normals:{value:normalTarget.texture},depth:{value:normalTarget.depthTexture},projectionInverse:{value:camera.projectionMatrixInverse},surfacePointer:{value:new THREE.Vector3()},atlas:{value:glyphTexture},resolution:{value:new THREE.Vector2()},pointer:{value:effectCursor},power:{value:0},radius:{value:56},surfaceRadius:{value:.4},ground:{value:ground},broken:{value:broken?1:0},time:{value:0}};
+    const uniforms={image:{value:materialTarget.texture},normals:{value:normalTarget.texture},atlas:{value:glyphTexture},resolution:{value:new THREE.Vector2()},pointer:{value:cursor},power:{value:0},radius:{value:110},ground:{value:ground},broken:{value:broken?1:0},time:{value:0}};
     const material=new THREE.ShaderMaterial({uniforms,vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}`,fragmentShader:`
-      uniform sampler2D image,normals,depth,atlas;uniform mat4 projectionInverse;uniform vec2 resolution,pointer;uniform float power,radius,surfaceRadius,broken,time;uniform vec3 ground,surfacePointer;varying vec2 vUv;
+      uniform sampler2D image,normals,atlas;uniform vec2 resolution,pointer;uniform float power,radius,broken,time;uniform vec3 ground;varying vec2 vUv;
       float hash(float p){return fract(sin(p*127.1)*43758.5453);}
       void main(){
-        vec2 pixel=vUv*resolution;vec2 cellSize=vec2(6.,9.);vec2 cell=floor(pixel/cellSize);vec2 center=(cell+.5)*cellSize;
-        float distanceToMouse=length(center-pointer);
-        vec2 centerUV=center/resolution;
-        float z=texture2D(depth,centerUV).r;
-        vec4 projected=projectionInverse*vec4(centerUV*2.-1.,z*2.-1.,1.);
-        vec3 surface=projected.xyz/projected.w;
-        float surfaceDistance=length(surface-surfacePointer);
-        float proximity=1.-smoothstep(surfaceRadius*.28,surfaceRadius,surfaceDistance);
+        vec2 pixel=vUv*resolution;vec2 cellSize=vec2(8.,12.);vec2 cell=floor(pixel/cellSize);vec2 center=(cell+.5)*cellSize;
+        // Both complete renderings use the same scene, frame and camera. The cursor
+        // only removes the foreground; it never moves or rescales the ASCII layer.
+        float proximity=1.-smoothstep(radius*.75,radius,length(pixel-pointer));
         float morph=power*proximity;
         vec2 sampleUV=center/resolution;float tear=0.;float missing=0.;
         if(broken>.5){
@@ -92,22 +87,21 @@ export async function mountDonut(figure,{broken=false,onProgress}={}){
     function resize(){
       const {width,height}=stage.getBoundingClientRect();if(!width||!height)return;
       renderer.setSize(width,height,false);materialTarget.setSize(Math.ceil(width*renderer.getPixelRatio()),Math.ceil(height*renderer.getPixelRatio()));normalTarget.setSize(Math.ceil(width),Math.ceil(height));
-      uniforms.resolution.value.set(width,height);uniforms.radius.value=Math.min(56,Math.max(42,width*.07));camera.aspect=width/height;camera.position.z=4.9/Math.min(camera.aspect,1);camera.updateProjectionMatrix();camera.updateMatrixWorld();dirty=true;wake();
+      uniforms.resolution.value.set(width,height);uniforms.radius.value=Math.min(115,Math.max(78,width*.17));camera.aspect=width/height;camera.position.z=4.9/Math.min(camera.aspect,1);camera.updateProjectionMatrix();camera.updateMatrixWorld();dirty=true;wake();
     }
     function render(now){
-      frame=0;if(disposed||!visible||document.hidden)return;
+      if(disposed||!visible||document.hidden)return false;
       const dt=last?Math.min((now-last)/1000,.04):.016;last=now;
       if(!document.body.hasAttribute('data-booting')&&!entryTime)entryTime=now;
-      if(!motion.matches&&!focused&&entryTime&&now-entryTime>650)angle+=dt*.95;
-      holder.rotation.set(.85+angle,angle*.23,.14+angle*.5);holder.updateMatrixWorld(true);
-      let hit=false;
-      if(pointerPresent||focused){
-        ndc.set(cursor.x/uniforms.resolution.value.x*2-1,cursor.y/uniforms.resolution.value.y*2-1);raycaster.setFromCamera(ndc,camera);
-        const intersection=raycaster.intersectObjects(surfaces,false)[0];hit=!!intersection;
-        if(intersection){uniforms.surfacePointer.value.copy(intersection.point).applyMatrix4(camera.matrixWorldInverse);uniforms.surfaceRadius.value=uniforms.radius.value*2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*(-uniforms.surfacePointer.value.z)/uniforms.resolution.value.y;}
+      if(!motion.matches&&!focused&&entryTime&&now-entryTime>650)angle+=dt;
+      holder.rotation.set(...donutPose(angle),donutRotationOrder);holder.updateMatrixWorld(true);
+      let overStage=false;
+      if(pointerPresent){
+        const rect=stage.getBoundingClientRect();
+        cursor.set((clientPointer.x-rect.left)*stage.clientWidth/rect.width,(rect.bottom-clientPointer.y)*stage.clientHeight/rect.height);
+        overStage=cursor.x>=0&&cursor.x<=stage.clientWidth&&cursor.y>=0&&cursor.y<=stage.clientHeight;
       }
-      if(hit)effectCursor.copy(cursor);
-      const previous=active,desired=hit?1:0;active+=(desired-active)*(1-Math.exp(-dt*12));if(active<.001)active=0;
+      const previous=active,desired=(pointerPresent&&overStage)||focused?1:0;active+=(desired-active)*(1-Math.exp(-dt*16));if(active<.001)active=0;
       uniforms.power.value=active;uniforms.time.value=now/1000;
       if(!motion.matches||dirty||active!==previous){
         renderer.setClearColor(ground,1);
@@ -119,21 +113,28 @@ export async function mountDonut(figure,{broken=false,onProgress}={}){
         }
         dirty=false;
       }
-      if((!motion.matches&&!focused)||Math.abs(active-desired)>.001)frame=requestAnimationFrame(render);
+      return (!motion.matches&&!focused)||Math.abs(active-desired)>.001;
     }
-    function wake(){if(!frame&&!disposed&&visible&&!document.hidden)frame=requestAnimationFrame(render);}
-    function move(event){const rect=stage.getBoundingClientRect();cursor.set(event.clientX-rect.left,rect.height-event.clientY+rect.top);pointerPresent=true;focused=false;dirty=true;wake();}
+    loop=createRenderLoop(render,()=>!disposed&&visible&&!document.hidden);
+    function wake(){loop.wake();}
+    function suspend(){loop.stop();last=0;}
+    function resume(){suspend();dirty=true;wake();}
+    function move(event){clientPointer.set(event.clientX,event.clientY);pointerPresent=true;focused=false;dirty=true;wake();}
     function leave(){pointerPresent=false;dirty=true;wake();}
     stage.addEventListener('pointermove',move,{signal});stage.addEventListener('pointerdown',move,{signal});stage.addEventListener('pointerleave',leave,{signal});stage.addEventListener('pointercancel',leave,{signal});
     stage.addEventListener('pointerup',event=>{if(event.pointerType!=='mouse')leave();},{signal});
     stage.addEventListener('focus',()=>{if(pointerPresent)return;focused=true;cursor.set(uniforms.resolution.value.x*.62,uniforms.resolution.value.y*.56);dirty=true;wake();},{signal});
     stage.addEventListener('blur',()=>{focused=false;leave();last=0;},{signal});
-    document.addEventListener('visibilitychange',()=>{last=0;leave();wake();},{signal});
+    document.addEventListener('visibilitychange',()=>{
+      pointerPresent=false;
+      if(document.hidden)suspend();else resume();
+    },{signal});
+    window.addEventListener('focus',resume,{signal});window.addEventListener('pageshow',resume,{signal});
     motion.addEventListener('change',()=>{dirty=true;wake();},{signal});
-    observer=new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;last=0;wake();});observer.observe(stage);
+    observer=new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;if(visible)resume();else suspend();});observer.observe(stage);
     resizeObserver=new ResizeObserver(resize);resizeObserver.observe(stage);
     renderer.compile(scene,camera);scene.overrideMaterial=normalMaterial;renderer.compile(scene,camera);scene.overrideMaterial=null;renderer.compile(postScene,postCamera);
-    resize();cancelAnimationFrame(frame);frame=0;render(performance.now());stage.classList.add('is-ready');loading.textContent='';
+    resize();stage.classList.add('is-ready');loading.textContent='';
   }catch(error){
     renderer?.dispose();renderer?.domElement.remove();
     if(!disposed){loading.textContent='Original render shown. The interactive view could not load.';stage.classList.add('is-fallback');console.warn('Donut view:',error.message);}

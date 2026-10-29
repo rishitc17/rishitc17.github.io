@@ -1,0 +1,10 @@
+GSAP and ScrollTrigger 3.13.0
+
+Copyright 2025, GreenSock. All rights reserved.
+Author: Jack Doyle
+
+Official license terms: https://gsap.com/standard-license/
+Resolved official page: https://gsap.com/community/standard-license/
+
+The original proprietary notices are preserved in both distributed JavaScript files.
+This notice identifies the license; it is not a replacement for its terms.

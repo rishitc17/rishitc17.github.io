@@ -3,7 +3,7 @@ import {config} from './config.js';
 import {markdown} from './markdown.js';
 
 export async function mountAdmin(root){
-  if(!document.querySelector('link[data-admin]')){const link=document.createElement('link');link.rel='stylesheet';link.href='/css/admin.css';link.dataset.admin='';document.head.append(link);}
+  if(!document.querySelector('link[data-admin]')){const link=document.createElement('link');link.rel='stylesheet';link.href='/css/admin.css?v=2';link.dataset.admin='';document.head.append(link);}
   let alive=true,kind='projects',rows=[],current=null,dirty=false,busy=false,user=null,objectURL='',loaded=false,loadVersion=0;
   const stop=()=>{alive=false;subscription.unsubscribe();window.removeEventListener('beforeunload',beforeUnload);if(objectURL)URL.revokeObjectURL(objectURL);};
   stop.canLeave=()=>discard();

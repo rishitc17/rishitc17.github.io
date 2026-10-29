@@ -4,13 +4,18 @@
     "supabase": "2.57.4",
     "marked": "16.3.0",
     "dompurify": "3.2.7",
-    "fontawesome": "6.7.2"
+    "fontawesome": "6.7.2",
+    "gsap": "3.13.0"
   },
   "source": "Versioned jsDelivr npm distributions; Google Fonts Archivo and Manrope distributions",
   "files": [
     {
       "file": "assets/vendor/fontawesome.css",
       "sha256": "74005d7c17d4a02f2f25404ec0655d9bc2fdaa53166874c87d7b7eec69d9088a"
+    },
+    {
+      "file": "assets/vendor/gsap.min.js",
+      "sha256": "96c01b81f44a3290e2b4532f55e2c9534b2adc43273a19f3756b2cb41f0fd0b6"
     },
     {
       "file": "assets/vendor/licenses/archivo.txt",
@@ -23,6 +28,10 @@
     {
       "file": "assets/vendor/licenses/fontawesome.txt",
       "sha256": "9b914eae88817d63b576eab5aafde7068c7a1abae125d7cdfb034f1da43a9afc"
+    },
+    {
+      "file": "assets/vendor/licenses/gsap.txt",
+      "sha256": "49e34f492bbf8b263f237189ae265c85d63cc5168fee72775bb2a4372bedc795"
     },
     {
       "file": "assets/vendor/licenses/manrope.txt",
@@ -51,6 +60,10 @@
     {
       "file": "assets/vendor/purify.js",
       "sha256": "9db4ca7e34d2b2b0fd25fa0d155ec3b14f0af980d068fee4060cbe97a21775ff"
+    },
+    {
+      "file": "assets/vendor/ScrollTrigger.min.js",
+      "sha256": "308219390e5e3b84cda0c481e70caa9820883ae10bda44e6e9a149a81aac4b3f"
     },
     {
       "file": "assets/vendor/supabase.umd.js",

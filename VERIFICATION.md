@@ -1,4 +1,6 @@
-# Portfolio verification
+# Initial portfolio verification (historical)
+
+This records the first build before the dark-studio revision. Theme and donut controls mentioned below have since been removed. Current checks, screenshots and design critique are in [REDESIGN-VERIFICATION.md](REDESIGN-VERIFICATION.md).
 
 Verified on 29 October 2026 against the running local site and the connected Supabase project.
 

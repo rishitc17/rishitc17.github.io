@@ -1,13 +1,13 @@
 import {entries,db,mediaUrl,escapeHTML as esc,safeUrl,formatDate,labels,statuses} from './data.js';
-import {donutMarkup,mountDonut} from './hero.js';
+import {donutMarkup,mountDonut} from './hero.js?v=2';
+import {mountMotion,revealCollection} from './motion.js?v=2';
 import {markdown} from './markdown.js';
 import {config} from './config.js';
 const main=document.querySelector('main'),nav=document.querySelector('nav'),menu=document.querySelector('.menu-toggle'),lightbox=document.querySelector('#lightbox');
-let version=0,disposeDonut=()=>{},cleanupPage=()=>{},lastRoute=location.pathname+location.search+location.hash;
+let version=0,disposeDonut=()=>{},cleanupMotion=()=>{},cleanupPage=()=>{},lastRoute=location.pathname+location.search+location.hash;
 const descriptions={projects:'Software, experiments, and ideas made real.',writing:'Thinking out loud, one piece at a time.','3d':'Experiments in shape, light, and material.',recognition:'Milestones along the way.'};
-const emptyMessages={projects:['The next idea starts here.','Projects will appear here as I publish them.'],writing:['A place for the longer thought.','Essays and other writing will appear here when published.'],'3d':['A new perspective is taking shape.','Renders will appear here as I add them to the collection.'],recognition:['Room for the milestones.','Certificates and recognition will appear here when published.']};
 function tags(row){return row.tags?.length?`<ul class="tags">${row.tags.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:'';}
-function empty(kind,filtered=false){return `<div class="empty-state" role="status"><h3>${filtered?'Nothing matches yet.':emptyMessages[kind][0]}</h3><p>${filtered?'Try a different search or clear the filters.':emptyMessages[kind][1]}</p></div>`;}
+function empty(kind,filtered=false){return `<div class="empty-state" role="status"><p>${filtered?'No entries match. Try a different search or clear the filters.':`No ${kind==='3d'?'renders':labels[kind].toLowerCase()} published yet.`}</p></div>`;}
 function errorMarkup(){return '<div class="collection-state error" role="alert"><p>The collection could not be loaded. Please check your connection and try again.</p><button class="text-link" data-retry>Reload collection</button></div>';}
 function loading(kind){return `<p class="collection-state" role="status">Loading ${esc(labels[kind].toLowerCase())}…</p>`;}
 function image(row,extra=''){return `<img data-media="${esc(row.image_path||'')}" alt="${esc(row.title)}" loading="lazy" ${extra}>`;}
@@ -33,10 +33,20 @@ lightbox.querySelector('.lightbox-close').addEventListener('click',()=>lightbox.
 lightbox.addEventListener('click',e=>{if(e.target===lightbox){const r=lightbox.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)lightbox.close();}});
 lightbox.addEventListener('close',()=>{lightboxVersion++;lightbox.querySelector('.lightbox-media').replaceChildren();});
 async function home(token){
-  main.innerHTML=`<section class="hero" id="top"><div class="hero-main"><div class="hero-copy"><h1>Built from<br><span class="accent">curiosity.</span></h1><p>I’m <strong>Rishit</strong>, an IB student who builds software, thinks in questions, and occasionally makes donuts in Blender.</p><a class="button" href="#selected-work">See what I’m making <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a></div>${donutMarkup()}</div><div class="hero-foot"><div class="interests"><span>Software</span><span>Words</span><span>Dimensions</span></div><a href="#selected-work"><span>A few things from my corner of the internet</span><i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a></div></section><section class="home-intro"><h2>Different mediums.<br>Same curiosity.</h2><p>Code is one way to work through an idea. So is an essay. So is a scene in Blender. This is where I keep the things I make along the way.</p></section>${Object.keys(labels).map((kind,i)=>`<section class="collection-section section-${kind}" id="${i===0?'selected-work':'home-'+kind}"><div class="section-heading"><div><h2>${kind==='3d'?'Another dimension.':labels[kind]+'.'}</h2><p>${descriptions[kind]}</p></div><a class="text-link" href="/${kind}">All ${labels[kind].toLowerCase()} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div><div data-section="${kind}" aria-live="polite">${loading(kind)}</div></section>`).join('')}`;
-  main.querySelector('.hero-foot>a').setAttribute('aria-label','Jump to selected work');
+  main.innerHTML=`
+    <section class="hero" id="top">
+      <div class="hero-stage">
+        <div class="hero-note"><p>I build software, <br>write, and make <br>3D things.</p></div>
+        <div class="hero-art">${donutMarkup()}</div>
+      </div>
+      <h1 class="hero-title"><span>Rishit</span> <span>Choudhary</span></h1>
+      <div class="hero-bottom"><p>Software, writing & 3D.</p><a class="hero-action" href="#selected-work"><span>View work</span><span class="action-disc"><i class="fa-solid fa-arrow-down" aria-hidden="true"></i></span></a></div>
+    </section>
+    <section class="studio-index" id="selected-work"><h2>Things<br>I’ve made.</h2><p>Software, writing, and scenes from Blender. Some finished, some still taking shape.</p></section>
+    ${Object.keys(labels).map(kind=>`<section class="collection-section section-${kind}" id="home-${kind}"><div class="section-heading"><div><h2><a href="/${kind}">${labels[kind]}</a></h2><p>${descriptions[kind]}</p></div><a class="text-link" href="/${kind}">All ${labels[kind].toLowerCase()}</a></div><div data-section="${kind}" aria-live="polite">${loading(kind)}</div></section>`).join('')}`;
+  cleanupMotion=mountMotion(main);
   const figure=main.querySelector('.donut-figure');mountDonut(figure).then(dispose=>{if(token===version)disposeDonut=dispose;else dispose();});
-  async function load(){try{const all=await entries();if(token!==version)return;Object.keys(labels).forEach(kind=>{const rows=all.filter(r=>r.kind===kind);const featured=rows.filter(r=>r.featured);const selected=(featured.length?featured:rows).slice(0,kind==='writing'?3:2);const root=main.querySelector(`[data-section="${kind}"]`);root.innerHTML=cards(kind,selected);hydrate(root,selected);});}catch{if(token!==version)return;main.querySelectorAll('[data-section]').forEach(root=>{root.innerHTML=errorMarkup();root.querySelector('[data-retry]').onclick=load;});}}
+  async function load(){try{const all=await entries();if(token!==version)return;Object.keys(labels).forEach(kind=>{const rows=all.filter(r=>r.kind===kind);const featured=rows.filter(r=>r.featured);const selected=(featured.length?featured:rows).slice(0,kind==='writing'?3:2);const root=main.querySelector(`[data-section="${kind}"]`);root.closest('section').classList.toggle('is-empty',!selected.length);root.innerHTML=cards(kind,selected);hydrate(root,selected);revealCollection(root);});window.ScrollTrigger?.refresh();}catch{if(token!==version)return;main.querySelectorAll('[data-section]').forEach(root=>{root.innerHTML=errorMarkup();root.querySelector('[data-retry]').onclick=load;});}}
   await load();
 }
 async function collection(kind,token){
@@ -63,20 +73,33 @@ async function project(slug,token,preview=false){
     hydrate(main,[row]);
   }await load();
 }
-async function notFound(token){document.title='Lost in translation · Rishit Choudhary';main.innerHTML=`<section class="not-found"><div><h1>404<span style="color:var(--accent)">.</span></h1><h2>Lost in translation.</h2><p>This page has wandered off. The donut seems to have lost a few characters, too.</p><a class="button" href="/">Back to familiar ground</a></div>${donutMarkup({broken:true})}</section>`;mountDonut(main.querySelector('figure'),{broken:true}).then(dispose=>{if(token===version)disposeDonut=dispose;else dispose();});}
+async function notFound(token){document.title='Signal lost · Rishit Choudhary';main.innerHTML=`<section class="not-found"><div><h1>404</h1><h2>Signal lost.</h2><p>This path doesn’t resolve. Neither does this donut, apparently.</p><a class="button" href="/">Back home</a></div>${donutMarkup({broken:true})}</section>`;mountDonut(main.querySelector('figure'),{broken:true}).then(dispose=>{if(token===version)disposeDonut=dispose;else dispose();});}
 export async function navigate({focus=false}={}){
-  const token=++version;disposeDonut();disposeDonut=()=>{};cleanupPage();cleanupPage=()=>{};if(lightbox.open)lightbox.close();closeMenu();
+  const token=++version;disposeDonut();disposeDonut=()=>{};cleanupMotion();cleanupMotion=()=>{};cleanupPage();cleanupPage=()=>{};if(lightbox.open)lightbox.close();closeMenu();
   let route=location.pathname.replace(/\/$/,'')||'/';
   nav.querySelectorAll('a').forEach(a=>{if(route.startsWith(a.getAttribute('href')))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
-  document.querySelector('.site-header').classList.remove('is-hidden');document.title='Rishit Choudhary · Built from curiosity';
-  try{if(route==='/')await home(token);else if(labels[route.slice(1)])await collection(route.slice(1),token);else if(/^\/projects\/[^/]+$/.test(route))await project(decodeURIComponent(route.split('/')[2]),token);else if(/^\/admin\/preview\/[a-f0-9-]+$/.test(route))await project(route.split('/')[3],token,true);else if(route==='/admin'){document.title='Studio · Rishit Choudhary';const {mountAdmin}=await import('./admin.js');if(token===version)cleanupPage=await mountAdmin(main);}else await notFound(token);}catch(error){if(token!==version)return;main.innerHTML=`<div class="collection-page">${errorMarkup()}</div>`;main.querySelector('[data-retry]').onclick=()=>navigate();console.error(error);}
+  document.querySelector('.site-header').classList.remove('is-hidden');document.title='Rishit Choudhary · Software, writing & 3D';
+  try {
+    if(route==='/')await home(token);
+    else if(labels[route.slice(1)])await collection(route.slice(1),token);
+    else if(/^\/projects\/[^/]+$/.test(route))await project(decodeURIComponent(route.split('/')[2]),token);
+    else if(/^\/admin\/preview\/[a-f0-9-]+$/.test(route))await project(route.split('/')[3],token,true);
+    else if(route==='/admin') {
+      document.title='Studio · Rishit Choudhary';
+      const {mountAdmin}=await import('./admin.js?v=2');
+      if(token===version)cleanupPage=await mountAdmin(main);
+    } else await notFound(token);
+  } catch(error) {
+    if(token!==version)return;
+    main.innerHTML=`<div class="collection-page">${errorMarkup()}</div>`;
+    main.querySelector('[data-retry]').onclick=()=>navigate();
+    console.error(error);
+  }
   if(token===version){if(focus)main.focus({preventScroll:true});if(location.hash)requestAnimationFrame(()=>{try{document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();}catch{}});}
 }
 function closeMenu(){nav.classList.remove('is-open');menu.setAttribute('aria-expanded','false');}
 menu.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));nav.classList.toggle('is-open',open);});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&nav.classList.contains('is-open')){closeMenu();menu.focus();}});
-const themeButton=document.querySelector('.theme-toggle');function themeLabel(){const dark=document.documentElement.dataset.theme==='dark';themeButton.setAttribute('aria-label',`Switch to ${dark?'light':'dark'} theme`);themeButton.innerHTML=`<i class="fa-solid fa-${dark?'sun':'moon'}" aria-hidden="true"></i>`;}
-themeButton.addEventListener('click',()=>{const theme=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=theme;try{localStorage.setItem('portfolio-theme',theme);}catch{}themeLabel();});themeLabel();
 document.addEventListener('click',async e=>{const a=e.target.closest('a');if(!a||e.defaultPrevented||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||a.target==='_blank'||a.hasAttribute('download'))return;const url=new URL(a.href,location.href);if(url.origin!==location.origin)return;if(url.pathname===location.pathname&&url.hash){closeMenu();return;}e.preventDefault();if(cleanupPage.canLeave&&!await cleanupPage.canLeave())return;lastRoute=url.pathname+url.search+url.hash;history.pushState({},'',lastRoute);window.scrollTo(0,0);navigate({focus:true});});
 window.addEventListener('popstate',async()=>{if(cleanupPage.canLeave&&!await cleanupPage.canLeave()){history.pushState({},'',lastRoute);return;}lastRoute=location.pathname+location.search+location.hash;navigate({focus:true});});
 document.querySelector('#back-top').addEventListener('click',e=>{e.preventDefault();window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});document.querySelector('.wordmark').focus({preventScroll:true});});

@@ -42,11 +42,14 @@ The applied database definition is in `supabase/schema.sql`. `supabase/verify.sq
 blender --background --factory-startup --python tools/export_donut.py
 ```
 
-The browser renders the model once into a shared render target. The realistic pixels, ASCII luminance and silhouette all sample that same frame. A per-cell, distance-weighted mask translates the surface around the pointer. No second model or spotlight is involved. Pointer/touch interaction, a full-ASCII toggle and a pause control are available; reduced-motion starts paused. Rendering suspends outside the viewport and in hidden tabs. A real still is shown when WebGL is unavailable.
+The idle model renders directly, without ASCII post-processing. During pointer/touch interaction, the realistic pixels, ASCII luminance and silhouette sample the same render target. A raycast restricts activation to the model, and a 32–52px mask translates the local surface around the pointer. The model rotates continuously through multiple axes; one full turn on its main axis takes about 6.6 seconds. Keyboard focus holds rotation; reduced-motion starts paused. Rendering suspends outside the viewport and in hidden tabs. A real still is shown when WebGL is unavailable. The 404 variant uses missing bands and displaced red characters. There are no donut mode buttons or visible instructions.
+
+The interface is dark only. The name-led hero, crimson work chapter and original model establish the visual direction. Vendored GSAP and ScrollTrigger animate entrances and the hero with native scrolling; reduced-motion keeps all content visible without travel. See `DESIGN.md` for the direction and its constraints.
 
 ## Dependencies and attribution
 
 - Three.js 0.180.0, MIT
+- GSAP and ScrollTrigger 3.13.0, [GSAP Standard License](https://gsap.com/standard-license/) (notice preserved locally)
 - Supabase JS 2.57.4, MIT
 - Marked 16.3.0, MIT
 - DOMPurify 3.2.7, Apache-2.0 OR MPL-2.0
@@ -54,4 +57,4 @@ The browser renders the model once into a shared render target. The realistic pi
 - Archivo and Manrope, SIL Open Font License
 - Donut model and profile image supplied by Rishit Choudhary; donut follows the BlenderGuru tutorial. Original local material assets are baked into the supplied work.
 
-See `VENDOR.json` for file hashes and source versions, `DESIGN.md` for design reasons and `VERIFICATION.md` for the delivery checks.
+See `VENDOR.json` for file hashes and source versions, `DESIGN.md` for design reasons and `REDESIGN-VERIFICATION.md` for the current delivery checks. `VERIFICATION.md` preserves the initial CMS/database verification.

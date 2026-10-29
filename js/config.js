@@ -1,0 +1,1 @@
+export const config=Object.freeze({url:'https://ptsijomrpzccbjbflder.supabase.co',key:'sb_publishable_JTtp5yVbsogqtEDh28SokQ_rdJp2r4s',owner:'ca3574a5-1789-4012-910c-42f85a513b9b',bucket:'portfolio'});

@@ -1,0 +1,7 @@
+* text=auto
+assets/vendor/** -text
+assets/fonts/** -text
+assets/webfonts/** -text
+assets/models/** -text
+assets/images/** -text
+*.png -text

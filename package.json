@@ -1,0 +1,7 @@
+{
+  "name": "rishit-portfolio",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": { "dev": "node tools/serve.mjs", "build": "node tools/build.mjs", "check": "node tools/check.mjs" }
+}

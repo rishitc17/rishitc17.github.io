@@ -1,0 +1,9 @@
+assets/supa.txt
+assets/*.blend*
+node_modules/
+dist/
+.taste-skill/
+test-results/
+.env*
+*.log
+__pycache__/

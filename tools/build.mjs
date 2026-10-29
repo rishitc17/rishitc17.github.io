@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+const dest=path.resolve(root,'dist');
+if(path.dirname(dest)!==root||path.basename(dest)!=='dist')throw Error('Output must stay inside the project.');
+console.log(`Rebuilding ${dest}`);
+fs.rmSync(dest,{recursive:true,force:true});fs.mkdirSync(dest,{recursive:true});
+for(const file of ['index.html','404.html','.nojekyll']) fs.copyFileSync(file,`${dest}/${file}`);
+for(const folder of ['css','js','assets/vendor','assets/fonts','assets/webfonts','assets/models','assets/images']) fs.cpSync(folder,`${dest}/${folder}`,{recursive:true});
+fs.copyFileSync('assets/PFP.png',`${dest}/assets/PFP.png`);
+console.log('Built static site in dist/. Source Blender files and setup details are excluded.');

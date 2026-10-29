@@ -1,0 +1,104 @@
+{
+  "versions": {
+    "three": "0.180.0",
+    "supabase": "2.57.4",
+    "marked": "16.3.0",
+    "dompurify": "3.2.7",
+    "fontawesome": "6.7.2"
+  },
+  "source": "Versioned jsDelivr npm distributions; Google Fonts Archivo and Manrope distributions",
+  "files": [
+    {
+      "file": "assets/vendor/fontawesome.css",
+      "sha256": "74005d7c17d4a02f2f25404ec0655d9bc2fdaa53166874c87d7b7eec69d9088a"
+    },
+    {
+      "file": "assets/vendor/licenses/archivo.txt",
+      "sha256": "108b4e57c9c796d3d38d0428ca7ee39de47ad93187302718d9b2d8864b9b716b"
+    },
+    {
+      "file": "assets/vendor/licenses/dompurify.txt",
+      "sha256": "1b02e03c3fb4f87d476c128f0eb9def1f5a1709d28b180465228bd41574623b7"
+    },
+    {
+      "file": "assets/vendor/licenses/fontawesome.txt",
+      "sha256": "9b914eae88817d63b576eab5aafde7068c7a1abae125d7cdfb034f1da43a9afc"
+    },
+    {
+      "file": "assets/vendor/licenses/manrope.txt",
+      "sha256": "58172e0c0fac2cda8a37b348164bb55e44b0e69051e557e92b1d3f6910141f7b"
+    },
+    {
+      "file": "assets/vendor/licenses/marked.txt",
+      "sha256": "8e3a3f82f59a60958f56ca08f445647c32a4733dc7ca6c2c46f6eb898471ab9c"
+    },
+    {
+      "file": "assets/vendor/licenses/supabase.txt",
+      "sha256": "334dd6820e2eaeab2064e7c59001b810566728a28a41a7c1dbf69bbee17d0936"
+    },
+    {
+      "file": "assets/vendor/licenses/three.txt",
+      "sha256": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601"
+    },
+    {
+      "file": "assets/vendor/loaders/GLTFLoader.js",
+      "sha256": "67ac5551fdafa6e349bd80c8f8e5e39c136d6b2fb1ad647db9abb21dc86f9e4a"
+    },
+    {
+      "file": "assets/vendor/marked.js",
+      "sha256": "2cf87a5a5f9f677fedca30aee75c2d791e79b2330cccc77345efc87091d09f12"
+    },
+    {
+      "file": "assets/vendor/purify.js",
+      "sha256": "9db4ca7e34d2b2b0fd25fa0d155ec3b14f0af980d068fee4060cbe97a21775ff"
+    },
+    {
+      "file": "assets/vendor/supabase.umd.js",
+      "sha256": "7e94b62086deecef8c0ba3b38f514e2a1944ff6c81d92fb3ff967828c406c38f"
+    },
+    {
+      "file": "assets/vendor/three.core.js",
+      "sha256": "eb077d2417f61d3e6d9264c317cabc4ea35769ed6b0ab533067292a550784c20"
+    },
+    {
+      "file": "assets/vendor/three.module.js",
+      "sha256": "c8211c69345d2e9949dc7a8ac969380497aa0600a5a8ac6a459c8cd02dd9cb8a"
+    },
+    {
+      "file": "assets/vendor/utils/BufferGeometryUtils.js",
+      "sha256": "fda7e946b8e0b5ab39b779206589e7a1079a22eb24efb89d7223e03fdfb1f751"
+    },
+    {
+      "file": "assets/fonts/archivo-400.ttf",
+      "sha256": "01170409e32e22123a354fbaa7dcb5ca5300790bb77c05d569ec8fdc394e78c9"
+    },
+    {
+      "file": "assets/fonts/archivo-700.ttf",
+      "sha256": "bed60488c2f5c0b24e01d931760b6f3e9a82619dcd081ed9bff643d9f4fd9e3d"
+    },
+    {
+      "file": "assets/fonts/archivo-900.ttf",
+      "sha256": "a375170e85070f94544fc0653836f5271b4421aef5e1f33466465ed2fca2c335"
+    },
+    {
+      "file": "assets/fonts/manrope-400.ttf",
+      "sha256": "ed335894f8d954263675f7e457bf657374d8b7be629be4dc43aef97c309ad3ae"
+    },
+    {
+      "file": "assets/fonts/manrope-600.ttf",
+      "sha256": "68ed4be49ec7d32f07b42f9232dc01ca1df7a77be1d9b0731aac74db58235f34"
+    },
+    {
+      "file": "assets/fonts/manrope-700.ttf",
+      "sha256": "ea1f264039fed13fd36e6d6f49fcae4fe7007def02cf2972b5c7f6d6f1349d06"
+    },
+    {
+      "file": "assets/webfonts/fa-brands-400.woff2",
+      "sha256": "d7236a19bf23cbb2027280e8f51dc99d6c45976a2ed60de73382b034b18a2b68"
+    },
+    {
+      "file": "assets/webfonts/fa-solid-900.woff2",
+      "sha256": "aa75998623a391e61c6901794ace832e3ecdd288b56d608f21bea0411acc0b8e"
+    }
+  ]
+}
